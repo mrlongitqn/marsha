@@ -16,6 +16,7 @@ export type UseCreateVideoData = {
   playlist: string;
   title: string;
   description?: string;
+  is_public?: boolean;
   lti_id?: string;
   live_type?: Nullable<LiveModeType>;
   upload_state?: uploadState;

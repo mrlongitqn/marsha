@@ -151,7 +151,7 @@ const GalleryVideoCard = ({
         </Box>
         <Box gap="xxsmall" align="end">
           <Text
-            size="xsmall"
+            size="tiny"
             weight="bold"
             style={{
               background: video.is_public ? '#e7f6ec' : '#f2f4f7',
