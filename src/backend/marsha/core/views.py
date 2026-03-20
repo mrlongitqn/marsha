@@ -1060,9 +1060,12 @@ class LTIRespondView(TemplateResponseMixin, View):
 
         try:
             lti_select_form_data = jwt_token.payload.get("lti_select_form_data")
+            # Canvas RCE launches use `ext_content_return_url` instead of the
+            # IMS `content_item_return_url` field expected by legacy LTI
+            # content-item flows.
             content_item_return_url = lti_select_form_data.get(
                 "content_item_return_url"
-            )
+            ) or lti_select_form_data.get("ext_content_return_url")
             if not content_item_return_url or "content_items" not in request.POST:
                 raise SuspiciousOperation
 
