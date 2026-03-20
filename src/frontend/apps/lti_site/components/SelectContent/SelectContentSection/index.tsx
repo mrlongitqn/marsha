@@ -184,7 +184,7 @@ export const SelectContentSection = ({
                 }
               />
               {isVideoGuard(item) && (
-                <Box direction="row" gap="xsmall" wrap>
+                <Box direction="row" gap="xsmall" wrap="wrap">
                   <Button
                     type="button"
                     onClick={() =>

@@ -14,8 +14,7 @@ import {
 } from 'lib-components';
 import {
   VideosOrderType,
-  useDeleteVideo,
-  useUpdateVideo,
+  useDeleteVideos,
   useVideos,
 } from 'lib-video';
 import React, { ChangeEvent, useMemo, useState } from 'react';
@@ -23,6 +22,7 @@ import { toast } from 'react-hot-toast';
 import { defineMessages, useIntl } from 'react-intl';
 
 import { useCreateVideo } from '@lib-video/api/useCreateVideo';
+import { useUpdateVideo } from '@lib-video/api/useUpdateVideo';
 
 import { UploadableObjectStatusBadge } from 'components/UploadableObjectStatusBadge';
 
@@ -190,7 +190,7 @@ export const GalleryManager = () => {
     },
   });
 
-  const deleteVideoMutation = useDeleteVideo({
+  const deleteVideoMutation = useDeleteVideos({
     onSuccess: () => {
       toast.success(intl.formatMessage(messages.deleteSuccess), {
         position: 'bottom-center',
@@ -237,8 +237,8 @@ export const GalleryManager = () => {
         pad="medium"
         background="white"
         round="xsmall"
-        border={{ color: 'light-4' }}
         gap="small"
+        style={{ border: '1px solid #d9d9d9' }}
       >
         <Heading level={3} margin="none">
           {intl.formatMessage(messages.addTitle)}
@@ -283,7 +283,10 @@ export const GalleryManager = () => {
           }
         />
 
-        <Field label={intl.formatMessage(messages.fileLabel)} fullWidth>
+        <Field fullWidth>
+          <Text size="small" weight="bold">
+            {intl.formatMessage(messages.fileLabel)}
+          </Text>
           <input
             aria-label={intl.formatMessage(messages.fileLabel)}
             type="file"
@@ -334,7 +337,7 @@ export const GalleryManager = () => {
               gap="small"
               background="white"
               round="xsmall"
-              border={{ color: 'light-4' }}
+              style={{ border: '1px solid #d9d9d9' }}
             >
               <Box
                 height="160px"
@@ -416,7 +419,7 @@ export const GalleryManager = () => {
                   </Box>
                 </Box>
               ) : (
-                <Box direction="row" gap="small" wrap>
+                <Box direction="row" gap="small" wrap="wrap">
                   <Button
                     onClick={() => {
                       setEditingId(video.id);
@@ -447,7 +450,11 @@ export const GalleryManager = () => {
                       }}
                     />
                   </label>
-                  <Button onClick={() => deleteVideoMutation.mutate(video.id)}>
+                  <Button
+                    onClick={() =>
+                      deleteVideoMutation.mutate({ ids: [video.id] })
+                    }
+                  >
                     {intl.formatMessage(messages.deleteButton)}
                   </Button>
                 </Box>
