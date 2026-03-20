@@ -22,11 +22,13 @@ import { PortabilityRequest } from 'components/PortabilityRequest';
 import { RESOURCE_PORTABILITY_REQUEST_ROUTE } from 'components/PortabilityRequest/route';
 import { RedirectOnLoad } from 'components/RedirectOnLoad';
 import { REDIRECT_ON_LOAD_ROUTE } from 'components/RedirectOnLoad/route';
+import { GALLERY_MANAGER_ROUTE } from 'components/GalleryManager/route';
 import { SelectContent } from 'components/SelectContent';
 import { SELECT_CONTENT_ROUTE } from 'components/SelectContent/route';
 import { PLAYER_ROUTE, VIDEO_WIZARD_ROUTE } from 'components/routes';
 
 const Dashboard = lazy(() => import('components/Dashboard'));
+const GalleryManager = lazy(() => import('components/GalleryManager'));
 const VideoWizard = lazy(() => import('components/VideoWizard'));
 const DocumentPlayer = lazy(
   () => import('components/DashboardDocument/DocumentPlayer'),
@@ -104,6 +106,11 @@ export const LTIInnerRoutes = () => {
                   <Navigate to={routeNotFound} />
                 )
               }
+            />
+
+            <Route
+              path={GALLERY_MANAGER_ROUTE.default}
+              element={<GalleryManager />}
             />
 
             <Route

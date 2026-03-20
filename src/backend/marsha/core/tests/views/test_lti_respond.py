@@ -75,6 +75,32 @@ class RespondLTIViewTestCase(TestCase):
             form_data.get("oauth_signature"),
         )
 
+    def test_views_lti_respond_canvas_ext_content_return_url(self):
+        """Canvas RCE launches should work with ext_content_return_url."""
+        lti_select_form_data, _ = generate_passport_and_signed_lti_parameters(
+            url="http://testserver/lti/respond/",
+            lti_parameters={
+                "roles": random.choice(["instructor", "administrator"]),
+                "ext_content_return_url": "https://lms.example.com/external_content/success",
+                "context_id": "unknown",
+            },
+        )
+        jwt_token = LTISelectFormAccessToken.for_lti_select_form_data(
+            lti_select_form_data,
+        )
+        response = self.client.post(
+            "/lti/respond/",
+            {
+                "jwt": str(jwt_token),
+                "content_items": "some content items",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context_data.get("form_action"),
+            lti_select_form_data.get("ext_content_return_url"),
+        )
+
     @mock.patch(
         "oauthlib.oauth1.rfc5849.generate_nonce",
         return_value="59474787080480293391616018589",

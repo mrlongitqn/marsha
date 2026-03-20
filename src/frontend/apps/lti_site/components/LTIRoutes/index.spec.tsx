@@ -68,6 +68,10 @@ jest.mock('components/PortabilityRequest', () => ({
 jest.mock('components/SelectContent', () => ({
   SelectContent: () => <div>My SelectContent</div>,
 }));
+jest.mock('components/GalleryManager', () => ({
+  __esModule: true,
+  default: () => <div>My GalleryManager</div>,
+}));
 
 jest.setTimeout(15000);
 
@@ -335,6 +339,18 @@ describe('<LTIRoutes />', () => {
     });
   });
 
+  describe('checks the gallery routes', () => {
+    test('matching', async () => {
+      render(<LTIInnerRoutes />, {
+        routerOptions: {
+          history: ['/galleries/videos'],
+        },
+      });
+
+      expect(await screen.findByText('My GalleryManager')).toBeInTheDocument();
+    });
+  });
+
   describe('checks the form routes', () => {
     test('matching', async () => {
       render(<LTIInnerRoutes />, {
@@ -510,6 +526,21 @@ describe('<LTIRoutes />', () => {
       });
 
       expect(await screen.findByText('My SelectContent')).toBeInTheDocument();
+    });
+
+    test('with gallery_mode', async () => {
+      mockedUseAppConfig.mockReturnValue({
+        frontend: 'test',
+        gallery_mode: 'videos',
+      } as any);
+
+      render(<LTIInnerRoutes />, {
+        routerOptions: {
+          history: ['/'],
+        },
+      });
+
+      expect(await screen.findByText('My GalleryManager')).toBeInTheDocument();
     });
 
     test('without resource', async () => {

@@ -546,6 +546,54 @@ class SelectLTIViewTestCase(TestCase):
         )
         self.assertEqual(Playlist.objects.count(), 1)
 
+    def test_views_lti_video_gallery(self):
+        """Validate the context passed to the frontend app for a video gallery manager."""
+        lti_consumer_parameters = {
+            "roles": random.choice(["instructor", "administrator"]),
+            "context_id": "sent_lti_context_id",
+            "title": "Sent LMS activity title",
+            "text": "Sent LMS activity text",
+        }
+        lti_parameters, passport = generate_passport_and_signed_lti_parameters(
+            url="http://testserver/lti/galleries/videos/",
+            lti_parameters=lti_consumer_parameters,
+        )
+
+        response = self.client.post(
+            "/lti/galleries/videos/",
+            lti_parameters,
+            HTTP_REFERER="http://testserver",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<html>")
+
+        match = re.search(
+            '<div id="marsha-frontend-data" data-context="(.*)">',
+            response.content.decode("utf-8"),
+        )
+        context = json.loads(unescape(match.group(1)))
+
+        playlist = Playlist.objects.get(
+            lti_id=lti_parameters.get("context_id"),
+            consumer_site=passport.consumer_site,
+        )
+        self.assertEqual(context.get("gallery_mode"), "videos")
+        self.assertEqual(context.get("modelName"), "videos")
+        self.assertEqual(
+            context.get("playlist"),
+            {
+                "id": str(playlist.id),
+                "lti_id": playlist.lti_id,
+                "title": playlist.title,
+            },
+        )
+
+        jwt_token = PlaylistAccessToken(context.get("jwt"))
+        self.assertEqual(
+            jwt_token.get("permissions"),
+            {"can_access_dashboard": False, "can_update": True},
+        )
+
     def test_views_lti_select_static_base_url(self):
         """Meta tag public-path should be the STATIC_URL settings with js/build/ at the end."""
         lti_parameters, _ = generate_passport_and_signed_lti_parameters(

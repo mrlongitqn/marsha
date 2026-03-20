@@ -1023,6 +1023,58 @@ class LTISelectView(BaseResourceView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 @method_decorator(xframe_options_exempt, name="dispatch")
+class LTIGalleryView(BaseResourceView):
+    """LTI view called to manage all videos attached to a course playlist."""
+
+    def _init_context(self):
+        """Adds LTI request verification and permissions check to the context initialization."""
+        self.lti = LTI(self.request)  # pylint:disable=attribute-defined-outside-init
+
+        if not self.lti.is_instructor and not self.lti.is_admin:
+            raise PermissionDenied
+
+        try:
+            self.lti.verify()
+        except LTIException as error:
+            raise ResourceException(str(error)) from error
+
+    def _get_app_data(self):
+        """Build app data for the frontend gallery manager."""
+        app_data = super()._get_app_data()
+
+        playlist, _ = Playlist.objects.get_or_create(
+            lti_id=self.lti.context_id,
+            consumer_site=self.lti.get_consumer_site(),
+            defaults={"title": self.lti.context_title},
+        )
+
+        refresh_token = PlaylistRefreshToken.for_lti(
+            lti=self.lti,
+            permissions={"can_access_dashboard": False, "can_update": True},
+            session_id=str(uuid.uuid4()),
+            port_to_playlist_id=str(playlist.id),
+        )
+
+        app_data.update(
+            {
+                "gallery_mode": "videos",
+                "modelName": "videos",
+                "playlist": PlaylistLiteSerializer(playlist).data,
+                "jwt": str(refresh_token.access_token),
+                "refresh_token": str(refresh_token),
+            }
+        )
+
+        return app_data
+
+    # pylint: disable=unused-argument
+    def post(self, request, *args, **kwargs):
+        """Respond to POST request."""
+        return self.render_to_response(self.get_context_data())
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+@method_decorator(xframe_options_exempt, name="dispatch")
 class LTIRespondView(TemplateResponseMixin, View):
     """LTI view called to respond to a consumer.
 

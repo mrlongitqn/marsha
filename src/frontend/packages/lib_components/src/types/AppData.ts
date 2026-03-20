@@ -84,6 +84,7 @@ export interface AppConfig {
   environment: string;
   frontend: string;
   frontend_home_url?: string;
+  gallery_mode?: 'videos';
   release: string;
   static: {
     svg: {

@@ -9,6 +9,7 @@ import { Fragment } from 'react';
 import { Navigate } from 'react-router-dom';
 
 import { RESOURCE_PORTABILITY_REQUEST_ROUTE } from 'components/PortabilityRequest/route';
+import { GALLERY_MANAGER_ROUTE } from 'components/GalleryManager/route';
 import { SELECT_CONTENT_ROUTE } from 'components/SelectContent/route';
 
 import { RedirectDocument } from './RedirectDocument';
@@ -28,6 +29,10 @@ export const RedirectOnLoad = () => {
 
   if (appData.state === appState.PORTABILITY) {
     return <Navigate to={RESOURCE_PORTABILITY_REQUEST_ROUTE} />;
+  }
+
+  if (appData.gallery_mode === 'videos') {
+    return <Navigate to={GALLERY_MANAGER_ROUTE.default} />;
   }
 
   if (appData.lti_select_form_data) {

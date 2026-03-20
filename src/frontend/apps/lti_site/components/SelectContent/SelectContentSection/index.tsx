@@ -15,13 +15,27 @@ import {
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 
-import { buildContentItems } from '../utils';
+import {
+  LtiSelectContentMode,
+  buildContentItems,
+  canEmbedLtiLinkItem,
+} from '../utils';
 
 const messages = defineMessages({
   select: {
     defaultMessage: 'Select {content_title}',
     description: `Title used for a video or a document select.`,
     id: 'components.SelectContent.SelectContentSection.select',
+  },
+  insertLink: {
+    defaultMessage: 'Insert link',
+    description: 'Button label used to insert a video as an LTI link.',
+    id: 'components.SelectContent.SelectContentSection.insertLink',
+  },
+  insertEmbed: {
+    defaultMessage: 'Insert embed',
+    description: 'Button label used to insert a video as an iframe embed.',
+    id: 'components.SelectContent.SelectContentSection.insertEmbed',
   },
 });
 
@@ -139,12 +153,15 @@ export const SelectContentSection = ({
   lti_select_form_data,
   setContentItemsValue,
 }: SelectContentSectionProps) => {
+  const intl = useIntl();
+
   return (
     <Box>
       <Box margin={{ vertical: 'medium' }}>
         <Button
           icon={<span className="material-icons">add_circle</span>}
           onClick={addAndSelectContent}
+          type="button"
           style={{ alignSelf: 'start' }}
         >
           {addMessage}
@@ -153,19 +170,56 @@ export const SelectContentSection = ({
       <Grid columns="small" gap="small">
         {items?.map(
           (item: Video | Document, index: React.Key | null | undefined) => (
-            <SelectContentCard
-              content={item}
-              key={index}
-              onClick={() =>
-                buildContentItems(
-                  item.lti_url || '',
-                  item.title,
-                  item.description,
-                  lti_select_form_data,
-                  setContentItemsValue,
-                )
-              }
-            />
+            <Box key={index} gap="xsmall">
+              <SelectContentCard
+                content={item}
+                onClick={() =>
+                  buildContentItems(
+                    item.lti_url || '',
+                    item.title,
+                    item.description,
+                    lti_select_form_data,
+                    setContentItemsValue,
+                  )
+                }
+              />
+              {isVideoGuard(item) && (
+                <Box direction="row" gap="xsmall" wrap>
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      buildContentItems(
+                        item.lti_url || '',
+                        item.title,
+                        item.description,
+                        lti_select_form_data,
+                        setContentItemsValue,
+                        LtiSelectContentMode.LINK,
+                      )
+                    }
+                  >
+                    {intl.formatMessage(messages.insertLink)}
+                  </Button>
+                  {canEmbedLtiLinkItem(lti_select_form_data) && (
+                    <Button
+                      type="button"
+                      onClick={() =>
+                        buildContentItems(
+                          item.lti_url || '',
+                          item.title,
+                          item.description,
+                          lti_select_form_data,
+                          setContentItemsValue,
+                          LtiSelectContentMode.EMBED,
+                        )
+                      }
+                    >
+                      {intl.formatMessage(messages.insertEmbed)}
+                    </Button>
+                  )}
+                </Box>
+              )}
+            </Box>
           ),
         )}
       </Grid>

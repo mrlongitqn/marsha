@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    container_name: marsha-postgres
+    env_file:
+      - env.d/db
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U marsha_user -d marsha"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - marsha_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: marsha-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - marsha_net
+
+  app:
+    image: marsha:latest
+    container_name: marsha-app
+    build: .
+    env_file:
+      - env.d/db
+      - env.d/production
+    ports:
+      - "8060:8000"
+    restart: unless-stopped
+    volumes:
+      - static_volume:/data/static
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - marsha_net
+
+  celery:
+    image: marsha:latest
+    container_name: marsha-worker
+    build: .
+    command: python -m celery -A marsha.celery_app worker -l info --concurrency=4
+    env_file:
+      - env.d/db
+      - env.d/production
+    restart: unless-stopped
+    volumes:
+      - static_volume:/data/static
+    depends_on:
+      - redis
+    networks:
+      - marsha_net
+
+  peertube-runner:
+    image: fundocker/peertube-runner:latest-whisper_ctranslate2
+    container_name: marsha-runner
+    env_file:
+      - env.d/peertube_runner
+    restart: unless-stopped
+    depends_on:
+      - app
+    networks:
+      - marsha_net
+
+volumes:
+  postgres_data:
+  redis_data:
+  static_volume:
+
+networks:
+  marsha_net:
+    driver: bridge
