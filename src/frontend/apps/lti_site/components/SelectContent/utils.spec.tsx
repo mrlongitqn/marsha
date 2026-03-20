@@ -119,7 +119,7 @@ describe('buildContentItems', () => {
 
   it('builds iframe content items for embed insertion', () => {
     buildContentItems(
-      '<iframe src="https://example.com/videos/1" />',
+      'https://example.com/videos/1',
       'Custom select content title',
       'Custom select content description',
       {},
@@ -134,11 +134,10 @@ describe('buildContentItems', () => {
         '@graph': [
           {
             '@type': 'ContentItem',
-            url: 'https://example.com/videos/1',
             mediaType: 'text/html',
             html: '<iframe src="https://example.com/videos/1" />',
+            text: '<iframe src="https://example.com/videos/1" />',
             title: 'Custom select content title',
-            text: 'Custom select content description',
           },
         ],
       }),

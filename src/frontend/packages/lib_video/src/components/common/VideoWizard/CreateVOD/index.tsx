@@ -88,7 +88,7 @@ export const CreateVOD = ({
   const [wizardedVideo, setWizardedVideo] = useState<WizardedVideo>({
     title: currentVideo.title,
     videoFile: null,
-    license: null,
+    license: currentVideo.license,
   });
   const [formState, setFormState] = useState<FormState>(
     FormState.WAITING_FOR_SUBMIT,
@@ -183,10 +183,10 @@ export const CreateVOD = ({
             disabled={formState !== FormState.WAITING_FOR_SUBMIT}
             label={intl.formatMessage(messages.placeholderTitleInput)}
             onChange={(event) =>
-              setWizardedVideo({
-                ...wizardedVideo,
+              setWizardedVideo((previousValue) => ({
+                ...previousValue,
                 title: event.target.value,
-              })
+              }))
             }
             value={wizardedVideo.title || ''}
             fullWidth
@@ -195,7 +195,10 @@ export const CreateVOD = ({
           <UploadVideoForm
             onRetry={() => setFormState(FormState.WAITING_FOR_SUBMIT)}
             setVideoFile={(videoFile) =>
-              setWizardedVideo({ ...wizardedVideo, videoFile })
+              setWizardedVideo((previousValue) => ({
+                ...previousValue,
+                videoFile,
+              }))
             }
             videoId={currentVideo.id}
             videoUploadState={currentVideo.upload_state}
@@ -204,7 +207,10 @@ export const CreateVOD = ({
           <LicenseSelect
             disabled={formState !== FormState.WAITING_FOR_SUBMIT}
             onChange={(option) =>
-              setWizardedVideo({ ...wizardedVideo, license: option.value })
+              setWizardedVideo((previousValue) => ({
+                ...previousValue,
+                license: option.value,
+              }))
             }
           />
         </Box>

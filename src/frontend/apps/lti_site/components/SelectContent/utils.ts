@@ -15,11 +15,10 @@ interface IframeContentItemsStructure {
   '@context': string;
   '@graph': {
     '@type': 'ContentItem';
-    url: string;
     mediaType: 'text/html';
     html: string;
+    text: string;
     title?: Nullable<string>;
-    text?: Nullable<string>;
   }[];
 }
 
@@ -74,7 +73,7 @@ export const buildPublicVideoIframe = (videoId: string, isLive = false) => {
     ? 'microphone *; camera *; midi *; display-capture *; '
     : '';
 
-  return `<iframe src="${publicVideoUrl}" allowfullscreen="true" allow="${parametersWebinar}encrypted-media *; autoplay *; fullscreen *" />`;
+  return `<iframe src="${publicVideoUrl}" allowfullscreen="true" allow="${parametersWebinar}encrypted-media *; autoplay *; fullscreen *"></iframe>`;
 };
 
 export const buildContentItems = (
@@ -95,23 +94,21 @@ export const buildContentItems = (
   );
 
   if (mode === LtiSelectContentMode.EMBED) {
+    const html = embedHtml || url;
     const contentItems: IframeContentItemsStructure = {
       '@context': 'http://purl.imsglobal.org/ctx/lti/v1/ContentItem',
       '@graph': [
         {
           '@type': 'ContentItem',
-          url,
           mediaType: 'text/html',
-          html: embedHtml || url,
+          html,
+          text: html,
         },
       ],
     };
 
     if (contentTitle) {
       contentItems['@graph'][0].title = contentTitle;
-    }
-    if (contentDescription) {
-      contentItems['@graph'][0].text = contentDescription;
     }
 
     setContentItemsValue(JSON.stringify(contentItems));

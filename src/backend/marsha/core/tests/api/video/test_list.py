@@ -47,6 +47,28 @@ class VideoListAPITest(TestCase):
             response.json(), {"count": 0, "next": None, "previous": None, "results": []}
         )
 
+    def test_api_video_read_list_lti_playlist_token(self):
+        """
+        LTI playlist tokens should list videos from their own playlist.
+
+        This powers the custom LTI gallery manager, which authenticates with a
+        playlist JWT instead of a standalone user token.
+        """
+        playlist = factories.PlaylistFactory()
+        video = factories.VideoFactory(playlist=playlist)
+        factories.VideoFactory()
+        jwt_token = InstructorOrAdminLtiTokenFactory(playlist=playlist)
+
+        response = self.client.get(
+            f"/api/videos/?playlist={playlist.id}&is_live=false",
+            HTTP_AUTHORIZATION=f"Bearer {jwt_token}",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 1)
+        self.assertEqual(response.json()["results"][0]["id"], str(video.id))
+        self.assertEqual(response.json()["results"][0]["playlist"]["id"], str(playlist.id))
+
     def test_api_video_read_list_user_with_no_access(self):
         """
         Token user lists videos.

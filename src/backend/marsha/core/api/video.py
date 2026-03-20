@@ -236,6 +236,14 @@ class VideoViewSet(
 
     def _get_list_queryset(self):
         """Build the queryset used on the list action."""
+        if self.request.resource is not None:
+            return (
+                super()
+                .get_queryset()
+                .filter(playlist__id=self.request.resource.id)
+                .distinct()
+            )
+
         user_id = self.request.user.id
 
         queryset = (
