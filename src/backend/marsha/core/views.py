@@ -1076,7 +1076,7 @@ class LTIGalleryView(BaseResourceView):
                     playlist.videos.order_by("-created_on"),
                     many=True,
                     context={
-                        **self._get_serializer_context(),
+                        "request": self.request,
                         "is_admin": True,
                     },
                 ).data,
