@@ -17,8 +17,8 @@ import { defineMessages, useIntl } from 'react-intl';
 
 import {
   LtiSelectContentMode,
-  buildPublicVideoIframe,
   buildPublicVideoUrl,
+  buildPublicVideoIframe,
   buildContentItems,
   canEmbedLtiLinkItem,
 } from '../utils';
@@ -146,6 +146,7 @@ export interface SelectContentSectionProps {
     [key: string]: string;
   };
   setContentItemsValue: (value: string) => void;
+  showAddButton?: boolean;
 }
 
 export const SelectContentSection = ({
@@ -154,31 +155,47 @@ export const SelectContentSection = ({
   items,
   lti_select_form_data,
   setContentItemsValue,
+  showAddButton = true,
 }: SelectContentSectionProps) => {
   const intl = useIntl();
   const canEmbed = canEmbedLtiLinkItem(lti_select_form_data);
+  const filteredItems = items?.filter((item) =>
+    isVideoGuard(item) ? item.is_public : true,
+  );
 
   return (
-    <Box>
-      <Box margin={{ vertical: 'medium' }}>
-        <Button
-          icon={<span className="material-icons">add_circle</span>}
-          onClick={addAndSelectContent}
-          type="button"
-          style={{ alignSelf: 'start' }}
-        >
-          {addMessage}
-        </Button>
-      </Box>
-      <Grid columns="small" gap="small">
-        {items?.map(
+    <Box
+      gap="medium"
+      pad={{ vertical: 'small' }}
+      style={{
+        background:
+          'linear-gradient(180deg, rgba(247,250,255,1) 0%, rgba(255,255,255,1) 100%)',
+        borderRadius: '18px',
+      }}
+    >
+      {showAddButton && (
+        <Box margin={{ vertical: 'small' }}>
+          <Button
+            icon={<span className="material-icons">add_circle</span>}
+            onClick={addAndSelectContent}
+            type="button"
+            style={{ alignSelf: 'start' }}
+          >
+            {addMessage}
+          </Button>
+        </Box>
+      )}
+      <Grid columns="small" gap="medium">
+        {filteredItems?.map(
           (item: Video | Document, index: React.Key | null | undefined) => (
             <Box key={index} gap="xsmall">
               <SelectContentCard
                 content={item}
                 onClick={() =>
                   buildContentItems(
-                    item.lti_url || '',
+                    isVideoGuard(item)
+                      ? buildPublicVideoUrl(item.id)
+                      : item.lti_url || '',
                     item.title,
                     item.description,
                     lti_select_form_data,
@@ -208,13 +225,12 @@ export const SelectContentSection = ({
                       type="button"
                       onClick={() =>
                         buildContentItems(
-                          buildPublicVideoUrl(item.id),
+                          buildPublicVideoIframe(item.id, item.is_live),
                           item.title,
                           item.description,
                           lti_select_form_data,
                           setContentItemsValue,
                           LtiSelectContentMode.EMBED,
-                          buildPublicVideoIframe(item.id, item.is_live),
                         )
                       }
                     >

@@ -1072,6 +1072,14 @@ class LTIGalleryView(BaseResourceView):
                 "gallery_mode": "videos",
                 "modelName": "videos",
                 "playlist": PlaylistLiteSerializer(playlist).data,
+                "videos": VideoSerializer(
+                    playlist.videos.order_by("-created_on"),
+                    many=True,
+                    context={
+                        **self._get_serializer_context(),
+                        "is_admin": True,
+                    },
+                ).data,
                 "jwt": str(refresh_token.access_token),
                 "refresh_token": str(refresh_token),
             }

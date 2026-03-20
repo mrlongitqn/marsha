@@ -41,12 +41,12 @@ const messages = defineMessages({
   },
   subtitle: {
     defaultMessage:
-      'Browse the videos attached to this LMS course and open the standard Marsha editor for each one.',
+      'Manage the public videos attached to this LMS course: create, upload, update and delete them from one place.',
     description: 'Subtitle for the LTI gallery manager page.',
     id: 'components.GalleryManager.subtitle',
   },
   empty: {
-    defaultMessage: 'There is no video in this course yet.',
+    defaultMessage: 'There is no public video in this course yet.',
     description: 'Message shown when there is no video in the current playlist.',
     id: 'components.GalleryManager.empty',
   },
@@ -95,6 +95,16 @@ const messages = defineMessages({
     description: 'Fallback error message for gallery actions.',
     id: 'components.GalleryManager.genericError',
   },
+  publicBadge: {
+    defaultMessage: 'Public',
+    description: 'Badge displayed for public videos in the gallery.',
+    id: 'components.GalleryManager.publicBadge',
+  },
+  privateBadge: {
+    defaultMessage: 'Private',
+    description: 'Badge displayed for private videos in the gallery.',
+    id: 'components.GalleryManager.privateBadge',
+  },
 });
 
 const GalleryVideoCard = ({
@@ -114,16 +124,19 @@ const GalleryVideoCard = ({
       pad="medium"
       gap="small"
       background="white"
-      round="xsmall"
-      style={{ border: '1px solid #d9d9d9' }}
+      round="12px"
+      style={{
+        border: '1px solid #d7e3f4',
+        boxShadow: '0 14px 28px rgba(26, 74, 122, 0.08)',
+      }}
     >
       <Box
         height="160px"
-        round="xsmall"
+        round="10px"
         background={
           thumbnail
             ? `url(${thumbnail}) center / cover`
-            : 'linear-gradient(135deg, #45a3ff 0%, #2169ff 100%)'
+            : 'linear-gradient(135deg, #1f7ae0 0%, #113d7a 100%)'
         }
       />
 
@@ -136,7 +149,23 @@ const GalleryVideoCard = ({
             </Text>
           )}
         </Box>
-        <UploadableObjectStatusBadge object={video} />
+        <Box gap="xxsmall" align="end">
+          <Text
+            size="xsmall"
+            weight="bold"
+            style={{
+              background: video.is_public ? '#e7f6ec' : '#f2f4f7',
+              color: video.is_public ? '#0f8f4f' : '#5f6b7a',
+              borderRadius: '999px',
+              padding: '6px 10px',
+            }}
+          >
+            {intl.formatMessage(
+              video.is_public ? messages.publicBadge : messages.privateBadge,
+            )}
+          </Text>
+          <UploadableObjectStatusBadge object={video} />
+        </Box>
       </Box>
 
       <Box direction="row" gap="small" wrap="wrap">
@@ -198,8 +227,11 @@ export const GalleryManager = () => {
   });
 
   const currentVideos = useMemo(
-    () => apiResponse.data?.results || [],
-    [apiResponse.data?.results],
+    () =>
+      apiResponse.data?.results ||
+      appData.videos?.filter((video) => video.playlist.id === playlistId) ||
+      [],
+    [apiResponse.data?.results, appData.videos, playlistId],
   );
 
   if (!playlistId) {
@@ -207,8 +239,25 @@ export const GalleryManager = () => {
   }
 
   return (
-    <Box pad="medium" gap="medium">
-      <Box gap="xsmall">
+    <Box
+      pad="large"
+      gap="medium"
+      style={{
+        background:
+          'radial-gradient(circle at top left, rgba(214,236,255,0.85), rgba(255,255,255,1) 45%)',
+        minHeight: '100%',
+      }}
+    >
+      <Box
+        gap="small"
+        pad="medium"
+        round="18px"
+        background="white"
+        style={{
+          border: '1px solid #d7e3f4',
+          boxShadow: '0 18px 42px rgba(26, 74, 122, 0.08)',
+        }}
+      >
         <Heading level={2}>{intl.formatMessage(messages.title)}</Heading>
         <Text>{intl.formatMessage(messages.subtitle)}</Text>
       </Box>
@@ -220,6 +269,7 @@ export const GalleryManager = () => {
               playlist: playlistId,
               title: intl.formatMessage(messages.newVideoTitle),
               upload_state: uploadState.INITIALIZED,
+              is_public: true,
             })
           }
           disabled={createVideoMutation.isLoading}

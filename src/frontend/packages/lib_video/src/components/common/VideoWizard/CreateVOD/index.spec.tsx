@@ -472,7 +472,7 @@ describe('<CreateVOD />', () => {
         'Accept-Language': 'en',
       },
       method: 'PATCH',
-      body: '{"title":"video title","license":"CC_BY"}',
+      body: '{"title":"video title","license":"CC_BY","is_public":true}',
     });
   });
 

@@ -114,6 +114,9 @@ export const SelectContentTabs = ({
       ),
   });
   const isFlagEnabled = useFlags((state) => state.isFlagEnabled);
+  const shouldShowAddButton =
+    lti_select_form_data?.selection_directive !== 'embed_content' &&
+    lti_select_form_data?.ext_content_intended_use !== 'embed';
 
   const appTabs: React.LazyExoticComponent<
     React.ComponentType<SelectContentTabProps>
@@ -175,12 +178,14 @@ export const SelectContentTabs = ({
                   title: lti_select_form_data?.activity_title,
                   description: lti_select_form_data?.activity_description,
                   live_type: LiveModeType.JITSI,
+                  is_public: true,
                 });
               }}
               newLtiUrl={new_video_url || ''}
               items={webinars || null}
               lti_select_form_data={lti_select_form_data}
               setContentItemsValue={setContentItemsValue}
+              showAddButton={shouldShowAddButton}
             />
           </Tab>
         )}
@@ -207,12 +212,14 @@ export const SelectContentTabs = ({
                   title: lti_select_form_data?.activity_title,
                   description: lti_select_form_data?.activity_description,
                   upload_state: uploadState.INITIALIZED,
+                  is_public: true,
                 });
               }}
               newLtiUrl={new_video_url || ''}
               items={videos || null}
               lti_select_form_data={lti_select_form_data}
               setContentItemsValue={setContentItemsValue}
+              showAddButton={shouldShowAddButton}
             />
           </Tab>
         )}

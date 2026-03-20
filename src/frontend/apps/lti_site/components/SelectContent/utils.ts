@@ -15,9 +15,13 @@ interface IframeContentItemsStructure {
   '@context': string;
   '@graph': {
     '@type': 'ContentItem';
-    mediaType: 'text/html';
-    html: string;
+    mediaType?: 'text/html';
     text: string;
+    placementAdvice?: {
+      presentationDocumentTarget: 'iframe';
+      displayWidth: number;
+      displayHeight: number;
+    };
     title?: Nullable<string>;
   }[];
 }
@@ -85,7 +89,6 @@ export const buildContentItems = (
   },
   setContentItemsValue: (value: string) => void,
   mode: LtiSelectContentMode = LtiSelectContentMode.DEFAULT,
-  embedHtml?: string,
 ) => {
   const { contentTitle, contentDescription } = getContentTitleAndDescription(
     title,
@@ -94,15 +97,18 @@ export const buildContentItems = (
   );
 
   if (mode === LtiSelectContentMode.EMBED) {
-    const html = embedHtml || url;
     const contentItems: IframeContentItemsStructure = {
       '@context': 'http://purl.imsglobal.org/ctx/lti/v1/ContentItem',
       '@graph': [
         {
           '@type': 'ContentItem',
           mediaType: 'text/html',
-          html,
-          text: html,
+          text: url,
+          placementAdvice: {
+            presentationDocumentTarget: 'iframe',
+            displayWidth: 960,
+            displayHeight: 540,
+          },
         },
       ],
     };

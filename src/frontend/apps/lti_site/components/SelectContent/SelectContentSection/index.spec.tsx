@@ -124,4 +124,34 @@ describe('SelectContentSection', () => {
     await userEvent.click(newDocument);
     expect(mockAddAndSelectContent).toHaveBeenCalledTimes(1);
   });
+
+  it('hides private videos and the add button when requested', () => {
+    render(
+      <SelectContentSection
+        addMessage="new video"
+        addAndSelectContent={mockAddAndSelectContent}
+        items={[
+          videoMockFactory({
+            title: 'Public Video',
+            is_public: true,
+          }),
+          videoMockFactory({
+            title: 'Private Video',
+            is_public: false,
+          }),
+        ]}
+        newLtiUrl="https://example.com/lti/videos/"
+        lti_select_form_data={{
+          lti_response_url: 'https://example.com/lti',
+          lti_message_type: 'ContentItemSelection',
+        }}
+        setContentItemsValue={mockSetContentItemsValue}
+        showAddButton={false}
+      />,
+    );
+
+    expect(screen.getByText('Public Video')).toBeInTheDocument();
+    expect(screen.queryByText('Private Video')).not.toBeInTheDocument();
+    expect(screen.queryByText('new video')).not.toBeInTheDocument();
+  });
 });

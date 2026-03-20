@@ -119,13 +119,12 @@ describe('buildContentItems', () => {
 
   it('builds iframe content items for embed insertion', () => {
     buildContentItems(
-      'https://example.com/videos/1',
+      '<iframe src="https://example.com/videos/1"></iframe>',
       'Custom select content title',
       'Custom select content description',
       {},
       mockSetContentItemsValue,
       LtiSelectContentMode.EMBED,
-      '<iframe src="https://example.com/videos/1" />',
     );
 
     expect(mockSetContentItemsValue).toHaveBeenCalledWith(
@@ -135,8 +134,12 @@ describe('buildContentItems', () => {
           {
             '@type': 'ContentItem',
             mediaType: 'text/html',
-            html: '<iframe src="https://example.com/videos/1" />',
-            text: '<iframe src="https://example.com/videos/1" />',
+            text: '<iframe src="https://example.com/videos/1"></iframe>',
+            placementAdvice: {
+              presentationDocumentTarget: 'iframe',
+              displayWidth: 960,
+              displayHeight: 540,
+            },
             title: 'Custom select content title',
           },
         ],

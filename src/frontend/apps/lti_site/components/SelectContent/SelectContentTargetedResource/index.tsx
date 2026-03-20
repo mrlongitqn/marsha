@@ -44,6 +44,9 @@ const SelectContentVideo = ({
   setContentItemsValue,
   isWebinar,
 }: SelectContentVideoProps) => {
+  const shouldShowAddButton =
+    lti_select_form_data?.selection_directive !== 'embed_content' &&
+    lti_select_form_data?.ext_content_intended_use !== 'embed';
   const useCreateVideoMutation = useCreateVideo({
     onSuccess: async (video, variables) => {
       if (variables.live_type) {
@@ -76,12 +79,14 @@ const SelectContentVideo = ({
           } else {
             data.upload_state = uploadState.INITIALIZED;
           }
+          data.is_public = true;
           useCreateVideoMutation.mutate(data);
         }}
         newLtiUrl={new_video_url}
         items={videos}
         lti_select_form_data={lti_select_form_data}
         setContentItemsValue={setContentItemsValue}
+        showAddButton={shouldShowAddButton}
       />
     </Box>
   );

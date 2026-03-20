@@ -88,7 +88,7 @@ export const CreateVOD = ({
   const [wizardedVideo, setWizardedVideo] = useState<WizardedVideo>({
     title: currentVideo.title,
     videoFile: null,
-    license: currentVideo.license,
+    license: currentVideo.license || 'CC_BY',
   });
   const [formState, setFormState] = useState<FormState>(
     FormState.WAITING_FOR_SUBMIT,
@@ -244,6 +244,7 @@ export const CreateVOD = ({
               videoMutation.mutate({
                 title: wizardedVideo.title,
                 license: wizardedVideo.license,
+                is_public: true,
               });
             }}
             style={{ flex: 2 }}

@@ -51,9 +51,19 @@ export const LicenseSelect = ({ disabled, onChange }: LicenseSelectProps) => {
   );
 
   useEffect(() => {
-    if (choices?.length && !selectedLicense) {
-      setSelectedLicense(choices[0]);
-      onChange(choices[0]);
+    if (!choices?.length) {
+      return;
+    }
+
+    const nextSelectedLicense =
+      selectedLicense &&
+      choices.find((choice) => choice.value === selectedLicense.value)
+        ? selectedLicense
+        : choices[0];
+
+    if (nextSelectedLicense?.value !== selectedLicense?.value) {
+      setSelectedLicense(nextSelectedLicense);
+      onChange(nextSelectedLicense);
     }
   }, [choices, onChange, selectedLicense]);
 
