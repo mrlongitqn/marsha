@@ -80,9 +80,16 @@ export const UploadableObjectStatusBadge = ({
 
     case uploadState.DELETED:
     case uploadState.PROCESSING:
+    case uploadState.INITIALIZED:
       return (
         <Badge role="status" background={colorsTokens['info-300']}>
-          <FormattedMessage {...messages[object.upload_state]} />
+          <FormattedMessage
+            {...messages[
+              object.upload_state === uploadState.INITIALIZED
+                ? uploadState.PENDING
+                : object.upload_state
+            ]}
+          />
         </Badge>
       );
 
