@@ -91,9 +91,9 @@ describe('buildContentItems', () => {
     );
   });
 
-  it('builds LTI link items for link insertion', () => {
+  it('builds content items for link insertion', () => {
     buildContentItems(
-      'https://example.com/lti',
+      'https://example.com/videos/1',
       'Custom select content title',
       'Custom select content description',
       {},
@@ -106,12 +106,9 @@ describe('buildContentItems', () => {
         '@context': 'http://purl.imsglobal.org/ctx/lti/v1/ContentItem',
         '@graph': [
           {
-            '@type': 'LtiLinkItem',
-            url: 'https://example.com/lti',
-            mediaType: 'application/vnd.ims.lti.v1.ltilink',
-            placementAdvice: {
-              presentationDocumentTarget: 'window',
-            },
+            '@type': 'ContentItem',
+            url: 'https://example.com/videos/1',
+            frame: [],
             title: 'Custom select content title',
             text: 'Custom select content description',
           },
@@ -120,14 +117,15 @@ describe('buildContentItems', () => {
     );
   });
 
-  it('builds LTI link items for embed insertion', () => {
+  it('builds iframe content items for embed insertion', () => {
     buildContentItems(
-      'https://example.com/lti',
+      '<iframe src="https://example.com/videos/1" />',
       'Custom select content title',
       'Custom select content description',
       {},
       mockSetContentItemsValue,
       LtiSelectContentMode.EMBED,
+      '<iframe src="https://example.com/videos/1" />',
     );
 
     expect(mockSetContentItemsValue).toHaveBeenCalledWith(
@@ -135,12 +133,10 @@ describe('buildContentItems', () => {
         '@context': 'http://purl.imsglobal.org/ctx/lti/v1/ContentItem',
         '@graph': [
           {
-            '@type': 'LtiLinkItem',
-            url: 'https://example.com/lti',
-            mediaType: 'application/vnd.ims.lti.v1.ltilink',
-            placementAdvice: {
-              presentationDocumentTarget: 'iframe',
-            },
+            '@type': 'ContentItem',
+            url: 'https://example.com/videos/1',
+            mediaType: 'text/html',
+            html: '<iframe src="https://example.com/videos/1" />',
             title: 'Custom select content title',
             text: 'Custom select content description',
           },
@@ -158,6 +154,9 @@ describe('buildContentItems', () => {
     expect(canEmbedLtiLinkItem({ selection_directive: 'embed_content' })).toBe(
       true,
     );
+    expect(
+      canEmbedLtiLinkItem({ launch_presentation_document_target: 'iframe' }),
+    ).toBe(true);
     expect(canEmbedLtiLinkItem({})).toBe(false);
   });
 });

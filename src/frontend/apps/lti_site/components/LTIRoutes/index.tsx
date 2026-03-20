@@ -29,6 +29,11 @@ import { PLAYER_ROUTE, VIDEO_WIZARD_ROUTE } from 'components/routes';
 
 const Dashboard = lazy(() => import('components/Dashboard'));
 const GalleryManager = lazy(() => import('components/GalleryManager'));
+const GalleryVideoEditor = lazy(
+  () => import('components/GalleryManager').then((module) => ({
+    default: module.GalleryVideoEditor,
+  })),
+);
 const VideoWizard = lazy(() => import('components/VideoWizard'));
 const DocumentPlayer = lazy(
   () => import('components/DashboardDocument/DocumentPlayer'),
@@ -106,6 +111,11 @@ export const LTIInnerRoutes = () => {
                   <Navigate to={routeNotFound} />
                 )
               }
+            />
+
+            <Route
+              path={GALLERY_MANAGER_ROUTE.video}
+              element={<GalleryVideoEditor />}
             />
 
             <Route

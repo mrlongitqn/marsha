@@ -988,6 +988,18 @@ class LTISelectView(BaseResourceView):
                     "jwt": str(lti_select_form_data_jwt),
                     "activity_title": activity_title,
                     "activity_description": self.request.POST.get("text"),
+                    "ext_content_intended_use": self.request.POST.get(
+                        "ext_content_intended_use"
+                    ),
+                    "ext_content_return_types": self.request.POST.get(
+                        "ext_content_return_types"
+                    ),
+                    "launch_presentation_document_target": self.request.POST.get(
+                        "launch_presentation_document_target"
+                    ),
+                    "selection_directive": self.request.POST.get(
+                        "selection_directive"
+                    ),
                 },
                 "playlist": PlaylistLiteSerializer(playlist).data,
                 "jwt": str(refresh_token.access_token),

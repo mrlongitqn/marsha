@@ -1,30 +1,37 @@
-import { Button, Checkbox, Field, Input, TextArea } from '@openfun/cunningham-react';
+import { Button } from '@openfun/cunningham-react';
 import {
   Box,
   BoxError,
   BoxLoader,
+  CurrentResourceContextProvider,
+  ErrorComponents,
   Grid,
   Heading,
   Text,
-  modelName,
+  Video,
+  builderFullScreenErrorRoute,
   uploadState,
-  uploadEnded,
   useAppConfig,
-  useUploadManager,
+  useCurrentResourceContext,
+  useVideo as useVideoStore,
 } from 'lib-components';
 import {
+  DashboardVideoWrapper,
   VideosOrderType,
+  useVideo,
   useDeleteVideos,
   useVideos,
 } from 'lib-video';
-import React, { ChangeEvent, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 import { defineMessages, useIntl } from 'react-intl';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
+import { CreateVOD } from '@lib-video/components/common/VideoWizard/CreateVOD';
 import { useCreateVideo } from '@lib-video/api/useCreateVideo';
-import { useUpdateVideo } from '@lib-video/api/useUpdateVideo';
 
 import { UploadableObjectStatusBadge } from 'components/UploadableObjectStatusBadge';
+import { builderGalleryVideoRoute, GALLERY_MANAGER_ROUTE } from './route';
 
 const messages = defineMessages({
   title: {
@@ -34,7 +41,7 @@ const messages = defineMessages({
   },
   subtitle: {
     defaultMessage:
-      'Manage the videos attached to this LMS course: create, upload, update and delete them from here.',
+      'Browse the videos attached to this LMS course and open the standard Marsha editor for each one.',
     description: 'Subtitle for the LTI gallery manager page.',
     id: 'components.GalleryManager.subtitle',
   },
@@ -43,75 +50,45 @@ const messages = defineMessages({
     description: 'Message shown when there is no video in the current playlist.',
     id: 'components.GalleryManager.empty',
   },
-  addTitle: {
+  addButton: {
     defaultMessage: 'Add a video',
-    description: 'Title for the create video form.',
-    id: 'components.GalleryManager.addTitle',
-  },
-  titleLabel: {
-    defaultMessage: 'Title',
-    description: 'Label for the video title field.',
-    id: 'components.GalleryManager.titleLabel',
-  },
-  descriptionLabel: {
-    defaultMessage: 'Description',
-    description: 'Label for the video description field.',
-    id: 'components.GalleryManager.descriptionLabel',
-  },
-  publicLabel: {
-    defaultMessage: 'Publicly available',
-    description: 'Label for public visibility checkbox.',
-    id: 'components.GalleryManager.publicLabel',
-  },
-  fileLabel: {
-    defaultMessage: 'Video file',
-    description: 'Label for the video file input.',
-    id: 'components.GalleryManager.fileLabel',
-  },
-  createButton: {
-    defaultMessage: 'Create and upload',
-    description: 'Button label to create a new video.',
-    id: 'components.GalleryManager.createButton',
+    description: 'Button label to create a new video from the gallery list.',
+    id: 'components.GalleryManager.addButton',
   },
   editButton: {
     defaultMessage: 'Edit',
     description: 'Button label to edit a video.',
     id: 'components.GalleryManager.editButton',
   },
-  saveButton: {
-    defaultMessage: 'Save',
-    description: 'Button label to save changes.',
-    id: 'components.GalleryManager.saveButton',
-  },
-  cancelButton: {
-    defaultMessage: 'Cancel',
-    description: 'Button label to cancel changes.',
-    id: 'components.GalleryManager.cancelButton',
-  },
   deleteButton: {
     defaultMessage: 'Delete',
     description: 'Button label to delete a video.',
     id: 'components.GalleryManager.deleteButton',
-  },
-  replaceButton: {
-    defaultMessage: 'Replace file',
-    description: 'Button label to upload a new source file.',
-    id: 'components.GalleryManager.replaceButton',
   },
   createSuccess: {
     defaultMessage: 'Video created.',
     description: 'Toast shown after creating a video.',
     id: 'components.GalleryManager.createSuccess',
   },
-  updateSuccess: {
-    defaultMessage: 'Video updated.',
-    description: 'Toast shown after updating a video.',
-    id: 'components.GalleryManager.updateSuccess',
-  },
   deleteSuccess: {
     defaultMessage: 'Video deleted.',
     description: 'Toast shown after deleting a video.',
     id: 'components.GalleryManager.deleteSuccess',
+  },
+  deleteConfirmation: {
+    defaultMessage: 'Delete this video?',
+    description: 'Confirmation prompt before deleting a video from the gallery.',
+    id: 'components.GalleryManager.deleteConfirmation',
+  },
+  newVideoTitle: {
+    defaultMessage: 'New video',
+    description: 'Default title used when a gallery user creates a new video.',
+    id: 'components.GalleryManager.newVideoTitle',
+  },
+  backToGallery: {
+    defaultMessage: 'Back to gallery',
+    description: 'Button label to return to the gallery list.',
+    id: 'components.GalleryManager.backToGallery',
   },
   genericError: {
     defaultMessage: 'Sorry, an error occurred. Please try again.',
@@ -120,49 +97,70 @@ const messages = defineMessages({
   },
 });
 
-type VideoFormValues = {
-  title: string;
-  description: string;
-  is_public: boolean;
-};
+const GalleryVideoCard = ({
+  video,
+  onEdit,
+  onDelete,
+}: {
+  video: Video;
+  onEdit: () => void;
+  onDelete: () => void;
+}) => {
+  const intl = useIntl();
+  const thumbnail = video.thumbnail?.urls?.[240] || video.urls?.thumbnails?.[240];
 
-const buildDefaultValues = (video?: {
-  title: string | null;
-  description: string | null;
-  is_public: boolean;
-}): VideoFormValues => ({
-  title: video?.title || '',
-  description: video?.description || '',
-  is_public: video?.is_public || false,
-});
+  return (
+    <Box
+      pad="medium"
+      gap="small"
+      background="white"
+      round="xsmall"
+      style={{ border: '1px solid #d9d9d9' }}
+    >
+      <Box
+        height="160px"
+        round="xsmall"
+        background={
+          thumbnail
+            ? `url(${thumbnail}) center / cover`
+            : 'linear-gradient(135deg, #45a3ff 0%, #2169ff 100%)'
+        }
+      />
 
-const uploadVideoFile = (
-  addUpload: ReturnType<typeof useUploadManager>['addUpload'],
-  videoId: string,
-  file: File,
-) => {
-  addUpload(modelName.VIDEOS, videoId, file, undefined, (presignedPost) => {
-    uploadEnded(modelName.VIDEOS, videoId, presignedPost.fields['key']);
-  });
+      <Box direction="row" justify="between" align="start" gap="small">
+        <Box gap="xxsmall">
+          <Text weight="bold">{video.title || '-'}</Text>
+          {video.description && (
+            <Text size="small" color="dark-5">
+              {video.description}
+            </Text>
+          )}
+        </Box>
+        <UploadableObjectStatusBadge object={video} />
+      </Box>
+
+      <Box direction="row" gap="small" wrap="wrap">
+        <Button onClick={onEdit}>
+          {intl.formatMessage(messages.editButton)}
+        </Button>
+        <Button color="secondary" onClick={onDelete}>
+          {intl.formatMessage(messages.deleteButton)}
+        </Button>
+      </Box>
+    </Box>
+  );
 };
 
 export const GalleryManager = () => {
   const intl = useIntl();
   const appData = useAppConfig();
-  const { addUpload } = useUploadManager();
+  const navigate = useNavigate();
   const playlistId = appData.playlist?.id || '';
-  const [createValues, setCreateValues] = useState<VideoFormValues>(
-    buildDefaultValues(),
-  );
-  const [createFile, setCreateFile] = useState<File | null>(null);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingValues, setEditingValues] = useState<VideoFormValues>(
-    buildDefaultValues(),
-  );
 
   const apiResponse = useVideos(
     {
       playlist: playlistId,
+      limit: '999',
       is_live: 'false',
       ordering: VideosOrderType.BY_CREATED_ON_REVERSED,
     },
@@ -174,14 +172,10 @@ export const GalleryManager = () => {
 
   const createVideoMutation = useCreateVideo({
     onSuccess: (video) => {
-      if (createFile) {
-        uploadVideoFile(addUpload, video.id, createFile);
-      }
-      setCreateValues(buildDefaultValues());
-      setCreateFile(null);
       toast.success(intl.formatMessage(messages.createSuccess), {
         position: 'bottom-center',
       });
+      navigate(builderGalleryVideoRoute(video.id));
     },
     onError: () => {
       toast.error(intl.formatMessage(messages.genericError), {
@@ -195,20 +189,6 @@ export const GalleryManager = () => {
       toast.success(intl.formatMessage(messages.deleteSuccess), {
         position: 'bottom-center',
       });
-    },
-    onError: () => {
-      toast.error(intl.formatMessage(messages.genericError), {
-        position: 'bottom-center',
-      });
-    },
-  });
-
-  const updatingVideoMutation = useUpdateVideo(editingId || '', {
-    onSuccess: () => {
-      toast.success(intl.formatMessage(messages.updateSuccess), {
-        position: 'bottom-center',
-      });
-      setEditingId(null);
     },
     onError: () => {
       toast.error(intl.formatMessage(messages.genericError), {
@@ -233,86 +213,19 @@ export const GalleryManager = () => {
         <Text>{intl.formatMessage(messages.subtitle)}</Text>
       </Box>
 
-      <Box
-        pad="medium"
-        background="white"
-        round="xsmall"
-        gap="small"
-        style={{ border: '1px solid #d9d9d9' }}
-      >
-        <Heading level={3} margin="none">
-          {intl.formatMessage(messages.addTitle)}
-        </Heading>
-
-        <Field fullWidth>
-          <Input
-            aria-label={intl.formatMessage(messages.titleLabel)}
-            label={intl.formatMessage(messages.titleLabel)}
-            value={createValues.title}
-            onChange={(event) =>
-              setCreateValues((value) => ({
-                ...value,
-                title: event.target.value,
-              }))
-            }
-          />
-        </Field>
-
-        <Field fullWidth>
-          <TextArea
-            label={intl.formatMessage(messages.descriptionLabel)}
-            rows={4}
-            value={createValues.description}
-            onChange={(event) =>
-              setCreateValues((value) => ({
-                ...value,
-                description: event.target.value,
-              }))
-            }
-          />
-        </Field>
-
-        <Checkbox
-          label={intl.formatMessage(messages.publicLabel)}
-          checked={createValues.is_public}
-          onChange={(event) =>
-            setCreateValues((value) => ({
-              ...value,
-              is_public: event.target.checked,
-            }))
+      <Box direction="row" justify="end">
+        <Button
+          onClick={() =>
+            createVideoMutation.mutate({
+              playlist: playlistId,
+              title: intl.formatMessage(messages.newVideoTitle),
+              upload_state: uploadState.INITIALIZED,
+            })
           }
-        />
-
-        <Field fullWidth>
-          <Text size="small" weight="bold">
-            {intl.formatMessage(messages.fileLabel)}
-          </Text>
-          <input
-            aria-label={intl.formatMessage(messages.fileLabel)}
-            type="file"
-            accept="video/*"
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              setCreateFile(event.target.files?.[0] || null)
-            }
-          />
-        </Field>
-
-        <Box direction="row" justify="end">
-          <Button
-            onClick={() =>
-              createVideoMutation.mutate({
-                playlist: playlistId,
-                title: createValues.title.trim(),
-                description: createValues.description.trim() || undefined,
-                is_public: createValues.is_public,
-                upload_state: uploadState.INITIALIZED,
-              } as any)
-            }
-            disabled={!createValues.title.trim() || createVideoMutation.isLoading}
-          >
-            {intl.formatMessage(messages.createButton)}
-          </Button>
-        </Box>
+          disabled={createVideoMutation.isLoading}
+        >
+          {intl.formatMessage(messages.addButton)}
+        </Button>
       </Box>
 
       {apiResponse.isLoading && <BoxLoader />}
@@ -325,145 +238,76 @@ export const GalleryManager = () => {
       )}
 
       <Grid columns="medium" gap="medium">
-        {currentVideos.map((video) => {
-          const thumbnail =
-            video.thumbnail?.urls?.[240] || video.urls?.thumbnails?.[240];
-          const isEditing = editingId === video.id;
-
-          return (
-            <Box
-              key={video.id}
-              pad="medium"
-              gap="small"
-              background="white"
-              round="xsmall"
-              style={{ border: '1px solid #d9d9d9' }}
-            >
-              <Box
-                height="160px"
-                round="xsmall"
-                background={
-                  thumbnail
-                    ? `url(${thumbnail}) center / cover`
-                    : 'linear-gradient(135deg, #45a3ff 0%, #2169ff 100%)'
-                }
-              />
-
-              <Box direction="row" justify="between" align="start" gap="small">
-                <Box gap="xxsmall">
-                  <Text weight="bold">{video.title || '-'}</Text>
-                  {video.description && (
-                    <Text size="small" color="dark-5">
-                      {video.description}
-                    </Text>
-                  )}
-                </Box>
-                <UploadableObjectStatusBadge object={video} />
-              </Box>
-
-              {isEditing ? (
-                <Box gap="small">
-                  <Field fullWidth>
-                    <Input
-                      aria-label={intl.formatMessage(messages.titleLabel)}
-                      label={intl.formatMessage(messages.titleLabel)}
-                      value={editingValues.title}
-                      onChange={(event) =>
-                        setEditingValues((value) => ({
-                          ...value,
-                          title: event.target.value,
-                        }))
-                      }
-                    />
-                  </Field>
-                  <Field fullWidth>
-                    <TextArea
-                      label={intl.formatMessage(messages.descriptionLabel)}
-                      rows={4}
-                      value={editingValues.description}
-                      onChange={(event) =>
-                        setEditingValues((value) => ({
-                          ...value,
-                          description: event.target.value,
-                        }))
-                      }
-                    />
-                  </Field>
-                  <Checkbox
-                    label={intl.formatMessage(messages.publicLabel)}
-                    checked={editingValues.is_public}
-                    onChange={(event) =>
-                      setEditingValues((value) => ({
-                        ...value,
-                        is_public: event.target.checked,
-                      }))
-                    }
-                  />
-                  <Box direction="row" gap="small" justify="end">
-                    <Button onClick={() => setEditingId(null)}>
-                      {intl.formatMessage(messages.cancelButton)}
-                    </Button>
-                    <Button
-                      onClick={() =>
-                        updatingVideoMutation.mutate({
-                          title: editingValues.title.trim(),
-                          description:
-                            editingValues.description.trim() || undefined,
-                          is_public: editingValues.is_public,
-                        } as any)
-                      }
-                      disabled={!editingValues.title.trim()}
-                    >
-                      {intl.formatMessage(messages.saveButton)}
-                    </Button>
-                  </Box>
-                </Box>
-              ) : (
-                <Box direction="row" gap="small" wrap="wrap">
-                  <Button
-                    onClick={() => {
-                      setEditingId(video.id);
-                      setEditingValues(
-                        buildDefaultValues({
-                          title: video.title,
-                          description: video.description,
-                          is_public: video.is_public,
-                        }),
-                      );
-                    }}
-                  >
-                    {intl.formatMessage(messages.editButton)}
-                  </Button>
-                  <label>
-                    <Text size="small" weight="bold">
-                      {intl.formatMessage(messages.replaceButton)}
-                    </Text>
-                    <input
-                      type="file"
-                      accept="video/*"
-                      onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                        const file = event.target.files?.[0];
-                        if (file) {
-                          uploadVideoFile(addUpload, video.id, file);
-                        }
-                        event.target.value = '';
-                      }}
-                    />
-                  </label>
-                  <Button
-                    onClick={() =>
-                      deleteVideoMutation.mutate({ ids: [video.id] })
-                    }
-                  >
-                    {intl.formatMessage(messages.deleteButton)}
-                  </Button>
-                </Box>
-              )}
-            </Box>
-          );
-        })}
+        {currentVideos.map((video) => (
+          <GalleryVideoCard
+            key={video.id}
+            video={video}
+            onEdit={() => navigate(builderGalleryVideoRoute(video.id))}
+            onDelete={() => {
+              if (window.confirm(intl.formatMessage(messages.deleteConfirmation))) {
+                deleteVideoMutation.mutate({ ids: [video.id] });
+              }
+            }}
+          />
+        ))}
       </Grid>
     </Box>
+  );
+};
+
+export const GalleryVideoEditor = () => {
+  const intl = useIntl();
+  const navigate = useNavigate();
+  const { videoId } = useParams();
+  const [resourceContext] = useCurrentResourceContext();
+  const addVideo = useVideoStore((state) => state.addResource);
+
+  const videoResponse = useVideo(videoId || '', {
+    enabled: !!videoId,
+    onSuccess: (video) => addVideo(video),
+    refetchInterval: 5000,
+  });
+
+  const scopedResourceContext = useMemo(
+    () => ({
+      ...resourceContext,
+      resource_id: videoId || resourceContext.resource_id,
+    }),
+    [resourceContext, videoId],
+  );
+
+  if (videoResponse.isLoading) {
+    return <BoxLoader />;
+  }
+
+  if (videoResponse.isError || !videoResponse.data) {
+    return <Navigate to={builderFullScreenErrorRoute(ErrorComponents.notFound)} />;
+  }
+
+  const video = videoResponse.data;
+
+  return (
+    <CurrentResourceContextProvider value={scopedResourceContext}>
+      <Box pad="medium" gap="medium">
+        <Box direction="row" justify="start">
+          <Button color="secondary" onClick={() => navigate(GALLERY_MANAGER_ROUTE.default)}>
+            {intl.formatMessage(messages.backToGallery)}
+          </Button>
+        </Box>
+
+        {video.upload_state === uploadState.INITIALIZED ? (
+          <CreateVOD
+            video={video}
+            onUploadSuccess={() =>
+              navigate(builderGalleryVideoRoute(video.id), { replace: true })
+            }
+            onPreviousButtonClick={() => navigate(GALLERY_MANAGER_ROUTE.default)}
+          />
+        ) : (
+          <DashboardVideoWrapper video={video} />
+        )}
+      </Box>
+    </CurrentResourceContextProvider>
   );
 };
 

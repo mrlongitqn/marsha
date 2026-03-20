@@ -17,6 +17,8 @@ import { defineMessages, useIntl } from 'react-intl';
 
 import {
   LtiSelectContentMode,
+  buildPublicVideoIframe,
+  buildPublicVideoUrl,
   buildContentItems,
   canEmbedLtiLinkItem,
 } from '../utils';
@@ -154,6 +156,7 @@ export const SelectContentSection = ({
   setContentItemsValue,
 }: SelectContentSectionProps) => {
   const intl = useIntl();
+  const canEmbed = canEmbedLtiLinkItem(lti_select_form_data);
 
   return (
     <Box>
@@ -189,7 +192,7 @@ export const SelectContentSection = ({
                     type="button"
                     onClick={() =>
                       buildContentItems(
-                        item.lti_url || '',
+                        buildPublicVideoUrl(item.id),
                         item.title,
                         item.description,
                         lti_select_form_data,
@@ -200,17 +203,18 @@ export const SelectContentSection = ({
                   >
                     {intl.formatMessage(messages.insertLink)}
                   </Button>
-                  {canEmbedLtiLinkItem(lti_select_form_data) && (
+                  {canEmbed && (
                     <Button
                       type="button"
                       onClick={() =>
                         buildContentItems(
-                          item.lti_url || '',
+                          buildPublicVideoUrl(item.id),
                           item.title,
                           item.description,
                           lti_select_form_data,
                           setContentItemsValue,
                           LtiSelectContentMode.EMBED,
+                          buildPublicVideoIframe(item.id, item.is_live),
                         )
                       }
                     >

@@ -11,17 +11,15 @@ interface DefaultContentItemsStructure {
   }[];
 }
 
-interface LtiLinkItemContentItemsStructure {
+interface IframeContentItemsStructure {
   '@context': string;
   '@graph': {
-    '@type': 'LtiLinkItem';
+    '@type': 'ContentItem';
     url: string;
-    mediaType: 'application/vnd.ims.lti.v1.ltilink';
+    mediaType: 'text/html';
+    html: string;
     title?: Nullable<string>;
     text?: Nullable<string>;
-    placementAdvice: {
-      presentationDocumentTarget: 'iframe' | 'window';
-    };
   }[];
 }
 
@@ -62,12 +60,25 @@ export const canEmbedLtiLinkItem = (ltiSelectFormData: {
   return (
     ltiSelectFormData?.selection_directive === 'embed_content' ||
     ltiSelectFormData?.ext_content_intended_use === 'embed' ||
+    ltiSelectFormData?.launch_presentation_document_target === 'iframe' ||
     returnTypes.split(',').includes('iframe')
   );
 };
 
+export const buildPublicVideoUrl = (videoId: string) =>
+  `${window.location.origin}/videos/${videoId}`;
+
+export const buildPublicVideoIframe = (videoId: string, isLive = false) => {
+  const publicVideoUrl = buildPublicVideoUrl(videoId);
+  const parametersWebinar = isLive
+    ? 'microphone *; camera *; midi *; display-capture *; '
+    : '';
+
+  return `<iframe src="${publicVideoUrl}" allowfullscreen="true" allow="${parametersWebinar}encrypted-media *; autoplay *; fullscreen *" />`;
+};
+
 export const buildContentItems = (
-  ltiUrl: string,
+  url: string,
   title: Nullable<string>,
   description: Nullable<string>,
   ltiSelectFormData: {
@@ -75,6 +86,7 @@ export const buildContentItems = (
   },
   setContentItemsValue: (value: string) => void,
   mode: LtiSelectContentMode = LtiSelectContentMode.DEFAULT,
+  embedHtml?: string,
 ) => {
   const { contentTitle, contentDescription } = getContentTitleAndDescription(
     title,
@@ -82,18 +94,15 @@ export const buildContentItems = (
     ltiSelectFormData,
   );
 
-  if (mode !== LtiSelectContentMode.DEFAULT) {
-    const contentItems: LtiLinkItemContentItemsStructure = {
+  if (mode === LtiSelectContentMode.EMBED) {
+    const contentItems: IframeContentItemsStructure = {
       '@context': 'http://purl.imsglobal.org/ctx/lti/v1/ContentItem',
       '@graph': [
         {
-          '@type': 'LtiLinkItem',
-          url: ltiUrl,
-          mediaType: 'application/vnd.ims.lti.v1.ltilink',
-          placementAdvice: {
-            presentationDocumentTarget:
-              mode === LtiSelectContentMode.EMBED ? 'iframe' : 'window',
-          },
+          '@type': 'ContentItem',
+          url,
+          mediaType: 'text/html',
+          html: embedHtml || url,
         },
       ],
     };
@@ -114,7 +123,7 @@ export const buildContentItems = (
     '@graph': [
       {
         '@type': 'ContentItem',
-        url: ltiUrl,
+        url,
         frame: [],
       },
     ],
