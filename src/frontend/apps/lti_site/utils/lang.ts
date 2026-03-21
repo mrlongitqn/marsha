@@ -52,7 +52,7 @@ export const createIntl = async (locale: string) => {
   let translatedMessages: Record<string, string> = {};
   try {
     translatedMessages = (await import(
-      `translations/${locales.locale}.json`
+      `../i18n/${locales.locale}.json`
     )) as Record<string, string>;
   } catch (e) {}
 

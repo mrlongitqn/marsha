@@ -207,39 +207,49 @@ const GalleryVideoCard = ({
             </Text>
           )}
         </Box>
-        <Box gap="xxsmall" align="end">
-          <Text size="tiny" weight="bold" color="dark-4">
-            {intl.formatMessage(messages.visibilityLabel)}
-          </Text>
-          <Box
-            direction="row"
-            align="center"
-            gap="xxsmall"
-            style={{
-              background: video.is_public ? '#e7f6ec' : '#f2f4f7',
-              color: video.is_public ? '#0f8f4f' : '#5f6b7a',
-              borderRadius: '999px',
-              padding: '6px 12px',
-            }}
-          >
-            <span className="material-icons" style={{ fontSize: '16px' }}>
-              {video.is_public ? 'public' : 'lock'}
-            </span>
-            <Text size="tiny" weight="bold">
-              {intl.formatMessage(
-                video.is_public ? messages.publicBadge : messages.privateBadge,
-              )}
-            </Text>
+        <Box gap="xsmall" align="end">
+          <Box direction="row" align="center" gap="small" wrap="wrap">
+            <Box gap="xxsmall" align="end">
+              <Text size="tiny" weight="bold" color="dark-4">
+                {intl.formatMessage(messages.visibilityLabel)}
+              </Text>
+              <Box
+                direction="row"
+                align="center"
+                gap="xxsmall"
+                style={{
+                  background: video.is_public ? '#e7f6ec' : '#f2f4f7',
+                  color: video.is_public ? '#0f8f4f' : '#5f6b7a',
+                  borderRadius: '999px',
+                  padding: '6px 12px',
+                }}
+              >
+                <span className="material-icons" style={{ fontSize: '16px' }}>
+                  {video.is_public ? 'public' : 'lock'}
+                </span>
+                <Text size="tiny" weight="bold">
+                  {intl.formatMessage(
+                    video.is_public ? messages.publicBadge : messages.privateBadge,
+                  )}
+                </Text>
+              </Box>
+            </Box>
+            <Box gap="xxsmall" align="end">
+              <Text size="tiny" weight="bold" color="dark-4">
+                {intl.formatMessage(messages.statusLabel)}
+              </Text>
+              <UploadableObjectStatusBadge object={video} />
+            </Box>
           </Box>
-          <Text size="tiny" weight="bold" color="dark-4">
-            {intl.formatMessage(messages.statusLabel)}
-          </Text>
-          <UploadableObjectStatusBadge object={video} />
         </Box>
       </Box>
 
-      <Box direction="row" gap="small" wrap="wrap">
+      <Box
+        gap="small"
+        style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: '100%' }}
+      >
         <Button
+          fullWidth
           icon={<span className="material-icons">edit</span>}
           onClick={onEdit}
         >
@@ -247,6 +257,7 @@ const GalleryVideoCard = ({
         </Button>
         <Button
           color="secondary"
+          fullWidth
           icon={<span className="material-icons">delete</span>}
           onClick={onDelete}
         >

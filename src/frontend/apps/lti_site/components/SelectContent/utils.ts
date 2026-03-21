@@ -16,7 +16,8 @@ interface IframeContentItemsStructure {
   '@graph': {
     '@type': 'ContentItem';
     mediaType?: 'text/html';
-    text: string;
+    html: string;
+    text?: string;
     title?: Nullable<string>;
   }[];
 }
@@ -72,7 +73,7 @@ export const buildPublicVideoIframe = (videoId: string, isLive = false) => {
     ? 'microphone *; camera *; midi *; display-capture *; '
     : '';
 
-  return `<iframe src="${publicVideoUrl}" allowfullscreen="true" allow="${parametersWebinar}encrypted-media *; autoplay *; fullscreen *"></iframe>`;
+  return `<iframe src="${publicVideoUrl}" width="960" height="540" allowfullscreen="true" allow="${parametersWebinar}encrypted-media *; autoplay *; fullscreen *"></iframe>`;
 };
 
 export const buildContentItems = (
@@ -98,7 +99,7 @@ export const buildContentItems = (
         {
           '@type': 'ContentItem',
           mediaType: 'text/html',
-          text: url,
+          html: url,
         },
       ],
     };

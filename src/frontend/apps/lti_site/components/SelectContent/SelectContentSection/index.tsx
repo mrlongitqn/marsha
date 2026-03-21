@@ -160,7 +160,9 @@ export const SelectContentSection = ({
   const intl = useIntl();
   const canEmbed = canEmbedLtiLinkItem(lti_select_form_data);
   const filteredItems = items?.filter((item) =>
-    isVideoGuard(item) ? item.is_public : true,
+    isVideoGuard(item)
+      ? item.is_public && item.is_ready_to_show && item.upload_state === 'ready'
+      : true,
   );
 
   return (
@@ -205,9 +207,17 @@ export const SelectContentSection = ({
                 }
               />
               {isVideoGuard(item) && (
-                <Box direction="row" gap="xsmall" wrap="wrap">
+                <Box
+                  gap="small"
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: canEmbed ? '1fr 1fr' : '1fr',
+                    width: '100%',
+                  }}
+                >
                   <Button
                     type="button"
+                    fullWidth
                     icon={<span className="material-icons">link</span>}
                     onClick={() =>
                       buildContentItems(
@@ -226,6 +236,7 @@ export const SelectContentSection = ({
                     <Button
                       type="button"
                       color="secondary"
+                      fullWidth
                       icon={<span className="material-icons">code</span>}
                       onClick={() =>
                         buildContentItems(

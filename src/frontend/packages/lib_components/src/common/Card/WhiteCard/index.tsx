@@ -18,7 +18,7 @@ export const WhiteCard = ({
   return (
     <Box
       background={colorsTokens['primary-100']}
-      margin={{ left: isDesktop ? 'auto' : undefined }}
+      margin={{ horizontal: isDesktop ? 'auto' : undefined }}
       basis={isDesktop ? '50%' : '100%'}
       justify="center"
       pad="medium"

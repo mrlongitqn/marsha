@@ -134,7 +134,7 @@ describe('buildContentItems', () => {
           {
             '@type': 'ContentItem',
             mediaType: 'text/html',
-            text: '<iframe src="https://example.com/videos/1"></iframe>',
+            html: '<iframe src="https://example.com/videos/1"></iframe>',
             title: 'Custom select content title',
           },
         ],
