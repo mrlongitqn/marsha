@@ -15,10 +15,16 @@ interface IframeContentItemsStructure {
   '@context': string;
   '@graph': {
     '@type': 'ContentItem';
+    url: string;
     mediaType?: 'text/html';
     html: string;
     text?: string;
     title?: Nullable<string>;
+    placementAdvice?: {
+      presentationDocumentTarget: 'iframe';
+      displayWidth: number;
+      displayHeight: number;
+    };
   }[];
 }
 
@@ -93,19 +99,31 @@ export const buildContentItems = (
   );
 
   if (mode === LtiSelectContentMode.EMBED) {
+    const srcMatch = url.match(/src="([^"]+)"/);
+    const publicVideoUrl = srcMatch?.[1] || url;
+
     const contentItems: IframeContentItemsStructure = {
       '@context': 'http://purl.imsglobal.org/ctx/lti/v1/ContentItem',
       '@graph': [
         {
           '@type': 'ContentItem',
+          url: publicVideoUrl,
           mediaType: 'text/html',
           html: url,
+          placementAdvice: {
+            presentationDocumentTarget: 'iframe',
+            displayWidth: 960,
+            displayHeight: 540,
+          },
         },
       ],
     };
 
     if (contentTitle) {
       contentItems['@graph'][0].title = contentTitle;
+    }
+    if (contentDescription) {
+      contentItems['@graph'][0].text = contentDescription;
     }
 
     setContentItemsValue(JSON.stringify(contentItems));

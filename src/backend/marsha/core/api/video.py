@@ -167,9 +167,22 @@ class VideoViewSet(
                     & (permissions.IsTokenInstructor | permissions.IsTokenAdmin)
                 )
             ]
-        elif self.action in ["destroy", "bulk_destroy"]:
-            # Not available in LTI
-            # For standalone site, only playlist admin or organization admin can access
+        elif self.action in ["destroy"]:
+            permission_classes = [
+                (
+                    permissions.IsPlaylistTokenMatchingRouteObject
+                    & (permissions.IsTokenInstructor | permissions.IsTokenAdmin)
+                )
+                | (
+                    permissions.IsAuthenticated
+                    & (
+                        permissions.IsObjectPlaylistAdminOrInstructor
+                        | permissions.IsObjectPlaylistOrganizationAdmin
+                    )
+                )
+            ]
+        elif self.action in ["bulk_destroy"]:
+            # Bulk deletion remains available only from the standalone site.
             permission_classes = [
                 permissions.IsAuthenticated
                 & (

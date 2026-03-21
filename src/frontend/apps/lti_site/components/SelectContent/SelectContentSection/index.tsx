@@ -7,7 +7,6 @@ import {
   Document,
   Grid,
   PlaySVG,
-  Text,
   Video,
   WebinarSVG,
   videoSize,
@@ -122,18 +121,7 @@ const SelectContentCard = ({
       onClick={onClick}
       header={header}
       title={content.title || ''}
-    >
-      {content.description && (
-        <Text
-          size="small"
-          truncate={5}
-          color="grey"
-          title={content.description}
-        >
-          {content.description}
-        </Text>
-      )}
-    </ContentCard>
+    />
   );
 };
 
@@ -188,10 +176,18 @@ export const SelectContentSection = ({
           </Button>
         </Box>
       )}
-      <Grid columns="small" gap="medium">
+      <Grid columns="medium" gap="medium">
         {filteredItems?.map(
           (item: Video | Document, index: React.Key | null | undefined) => (
-            <Box key={index} gap="xsmall">
+            <Box
+              key={index}
+              gap="small"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+              }}
+            >
               <SelectContentCard
                 content={item}
                 onClick={() =>
@@ -213,12 +209,18 @@ export const SelectContentSection = ({
                     display: 'grid',
                     gridTemplateColumns: canEmbed ? '1fr 1fr' : '1fr',
                     width: '100%',
+                    marginTop: 'auto',
                   }}
                 >
                   <Button
                     type="button"
                     fullWidth
                     icon={<span className="material-icons">link</span>}
+                    style={{
+                      whiteSpace: 'nowrap',
+                      fontSize: '0.85rem',
+                      justifyContent: 'center',
+                    }}
                     onClick={() =>
                       buildContentItems(
                         buildPublicVideoUrl(item.id),
@@ -238,6 +240,11 @@ export const SelectContentSection = ({
                       color="secondary"
                       fullWidth
                       icon={<span className="material-icons">code</span>}
+                      style={{
+                        whiteSpace: 'nowrap',
+                        fontSize: '0.85rem',
+                        justifyContent: 'center',
+                      }}
                       onClick={() =>
                         buildContentItems(
                           buildPublicVideoIframe(item.id, item.is_live),

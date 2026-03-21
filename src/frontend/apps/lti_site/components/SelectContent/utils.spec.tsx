@@ -133,9 +133,16 @@ describe('buildContentItems', () => {
         '@graph': [
           {
             '@type': 'ContentItem',
+            url: 'https://example.com/videos/1',
             mediaType: 'text/html',
             html: '<iframe src="https://example.com/videos/1"></iframe>',
             title: 'Custom select content title',
+            text: 'Custom select content description',
+            placementAdvice: {
+              presentationDocumentTarget: 'iframe',
+              displayWidth: 960,
+              displayHeight: 540,
+            },
           },
         ],
       }),

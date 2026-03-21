@@ -19,7 +19,7 @@ import {
   DashboardVideoWrapper,
   VideosOrderType,
   useVideo,
-  useDeleteVideos,
+  useDeleteVideo,
   useVideos,
 } from 'lib-video';
 import React, { useMemo } from 'react';
@@ -105,16 +105,6 @@ const messages = defineMessages({
     description: 'Badge displayed for private videos in the gallery.',
     id: 'components.GalleryManager.privateBadge',
   },
-  statusLabel: {
-    defaultMessage: 'Status',
-    description: 'Label displayed above the upload status badge.',
-    id: 'components.GalleryManager.statusLabel',
-  },
-  visibilityLabel: {
-    defaultMessage: 'Visibility',
-    description: 'Label displayed above the visibility badge.',
-    id: 'components.GalleryManager.visibilityLabel',
-  },
   videosCount: {
     defaultMessage:
       '{count, plural, =0 {No videos yet} one {# video in this course} other {# videos in this course}}',
@@ -151,6 +141,7 @@ const GalleryVideoCard = ({
         round="14px"
         pad="small"
         justify="between"
+        overflow="hidden"
         background={
           thumbnail
             ? `url(${thumbnail}) center / cover`
@@ -158,24 +149,37 @@ const GalleryVideoCard = ({
         }
       >
         <Box direction="row" justify="between" align="start">
-          <Text
-            size="tiny"
-            weight="bold"
+          <Box
+            direction="row"
+            align="center"
+            gap="xxsmall"
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              background: 'rgba(255,255,255,0.92)',
-              color: '#17324d',
+              background: 'rgba(255,255,255,0.96)',
+              color: video.is_public ? '#0f8f4f' : '#5f6b7a',
               borderRadius: '999px',
               padding: '6px 12px',
+              boxShadow: '0 10px 24px rgba(15, 35, 64, 0.16)',
             }}
           >
             <span className="material-icons" style={{ fontSize: '16px' }}>
-              movie
+              {video.is_public ? 'public' : 'lock'}
             </span>
-            {video.is_live ? 'Live' : 'VOD'}
-          </Text>
+            <Text size="tiny" weight="bold">
+              {intl.formatMessage(
+                video.is_public ? messages.publicBadge : messages.privateBadge,
+              )}
+            </Text>
+          </Box>
+          <Box
+            style={{
+              background: 'rgba(255,255,255,0.96)',
+              borderRadius: '999px',
+              padding: '4px 8px',
+              boxShadow: '0 10px 24px rgba(15, 35, 64, 0.16)',
+            }}
+          >
+            <UploadableObjectStatusBadge object={video} />
+          </Box>
         </Box>
 
         <Box align="center" justify="center">
@@ -193,7 +197,7 @@ const GalleryVideoCard = ({
       </Box>
 
       <Box direction="row" justify="between" align="start" gap="small">
-        <Box gap="xsmall" style={{ flex: 1 }}>
+        <Box gap="xsmall" style={{ flex: 1, minHeight: '64px' }}>
           <Text
             weight="bold"
             size="large"
@@ -201,46 +205,6 @@ const GalleryVideoCard = ({
           >
             {video.title || '-'}
           </Text>
-          {video.description && (
-            <Text size="small" color="dark-5" truncate={3}>
-              {video.description}
-            </Text>
-          )}
-        </Box>
-        <Box gap="xsmall" align="end">
-          <Box direction="row" align="center" gap="small" wrap="wrap">
-            <Box gap="xxsmall" align="end">
-              <Text size="tiny" weight="bold" color="dark-4">
-                {intl.formatMessage(messages.visibilityLabel)}
-              </Text>
-              <Box
-                direction="row"
-                align="center"
-                gap="xxsmall"
-                style={{
-                  background: video.is_public ? '#e7f6ec' : '#f2f4f7',
-                  color: video.is_public ? '#0f8f4f' : '#5f6b7a',
-                  borderRadius: '999px',
-                  padding: '6px 12px',
-                }}
-              >
-                <span className="material-icons" style={{ fontSize: '16px' }}>
-                  {video.is_public ? 'public' : 'lock'}
-                </span>
-                <Text size="tiny" weight="bold">
-                  {intl.formatMessage(
-                    video.is_public ? messages.publicBadge : messages.privateBadge,
-                  )}
-                </Text>
-              </Box>
-            </Box>
-            <Box gap="xxsmall" align="end">
-              <Text size="tiny" weight="bold" color="dark-4">
-                {intl.formatMessage(messages.statusLabel)}
-              </Text>
-              <UploadableObjectStatusBadge object={video} />
-            </Box>
-          </Box>
         </Box>
       </Box>
 
@@ -301,7 +265,7 @@ export const GalleryManager = () => {
     },
   });
 
-  const deleteVideoMutation = useDeleteVideos({
+  const deleteVideoMutation = useDeleteVideo({
     onSuccess: () => {
       toast.success(intl.formatMessage(messages.deleteSuccess), {
         position: 'bottom-center',
@@ -412,7 +376,7 @@ export const GalleryManager = () => {
             onEdit={() => navigate(builderGalleryVideoRoute(video.id))}
             onDelete={() => {
               if (window.confirm(intl.formatMessage(messages.deleteConfirmation))) {
-                deleteVideoMutation.mutate({ ids: [video.id] });
+                deleteVideoMutation.mutate(video.id);
               }
             }}
           />
