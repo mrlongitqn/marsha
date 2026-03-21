@@ -31,6 +31,7 @@ import { CreateVOD } from '@lib-video/components/common/VideoWizard/CreateVOD';
 import { useCreateVideo } from '@lib-video/api/useCreateVideo';
 
 import { UploadableObjectStatusBadge } from 'components/UploadableObjectStatusBadge';
+import { buildPublicVideoUrl } from 'components/SelectContent/utils';
 import { builderGalleryVideoRoute, GALLERY_MANAGER_ROUTE } from './route';
 
 const messages = defineMessages({
@@ -116,11 +117,15 @@ const messages = defineMessages({
 const GalleryVideoCard = ({
   video,
   canManage,
+  showOverlayInfo,
+  onOpen,
   onEdit,
   onDelete,
 }: {
   video: Video;
   canManage: boolean;
+  showOverlayInfo: boolean;
+  onOpen: () => void;
   onEdit: () => void;
   onDelete: () => void;
 }) => {
@@ -133,9 +138,11 @@ const GalleryVideoCard = ({
       gap="medium"
       background="white"
       round="18px"
+      onClick={!canManage ? onOpen : undefined}
       style={{
         border: '1px solid #d7e3f4',
         boxShadow: '0 18px 36px rgba(18, 56, 97, 0.12)',
+        cursor: canManage ? 'default' : 'pointer',
       }}
     >
       <Box
@@ -150,7 +157,8 @@ const GalleryVideoCard = ({
             : 'linear-gradient(135deg, #1d4ed8 0%, #0f172a 100%)'
         }
       >
-        <Box direction="row" justify="between" align="start">
+        {showOverlayInfo && (
+          <Box direction="row" justify="between" align="start">
           <Box
             direction="row"
             align="center"
@@ -182,7 +190,8 @@ const GalleryVideoCard = ({
           >
             <UploadableObjectStatusBadge object={video} neutral />
           </Box>
-        </Box>
+          </Box>
+        )}
 
         <Box align="center" justify="center">
           <span
@@ -318,21 +327,10 @@ export const GalleryManager = () => {
       >
         <Box direction="row" justify="between" align="center" gap="medium">
           <Box gap="small">
-            <Text
-              size="tiny"
-              weight="bold"
-              style={{
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                color: '#1d4ed8',
-              }}
-            >
-              Canvas LMS
-            </Text>
             <Heading level={2} margin="none">
               {intl.formatMessage(messages.title)}
             </Heading>
-            <Text>{intl.formatMessage(messages.subtitle)}</Text>
+            {canUpdate && <Text>{intl.formatMessage(messages.subtitle)}</Text>}
           </Box>
           <Box
             pad={{ vertical: 'small', horizontal: 'medium' }}
@@ -382,6 +380,10 @@ export const GalleryManager = () => {
             key={video.id}
             video={video}
             canManage={canUpdate}
+            showOverlayInfo={canUpdate}
+            onOpen={() => {
+              window.location.href = buildPublicVideoUrl(video.id);
+            }}
             onEdit={() =>
               canUpdate ? navigate(builderGalleryVideoRoute(video.id)) : undefined
             }
