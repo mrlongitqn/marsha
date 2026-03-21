@@ -73,13 +73,9 @@ export const canEmbedLtiLinkItem = (ltiSelectFormData: {
 export const buildPublicVideoUrl = (videoId: string) =>
   `${window.location.origin}/videos/${videoId}`;
 
-export const buildPublicVideoIframe = (videoId: string, isLive = false) => {
+export const buildPublicVideoIframe = (videoId: string) => {
   const publicVideoUrl = buildPublicVideoUrl(videoId);
-  const parametersWebinar = isLive
-    ? 'microphone *; camera *; midi *; display-capture *; '
-    : '';
-
-  return `<iframe src="${publicVideoUrl}" width="960" height="540" allowfullscreen="true" allow="${parametersWebinar}encrypted-media *; autoplay *; fullscreen *"></iframe>`;
+  return `<iframe src="${publicVideoUrl}" width="960" height="540" allowfullscreen="true"></iframe>`;
 };
 
 export const buildContentItems = (

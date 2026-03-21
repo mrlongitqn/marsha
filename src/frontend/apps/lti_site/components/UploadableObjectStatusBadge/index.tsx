@@ -55,7 +55,11 @@ const Badge = styled.div`
   display: inline-block;
   color: white;
   padding: 0.375rem 0.75rem;
-  border-radius: 4px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
 
   background-color: ${({ background }: BadgeProps) =>
     normalizeColor(background, theme)};

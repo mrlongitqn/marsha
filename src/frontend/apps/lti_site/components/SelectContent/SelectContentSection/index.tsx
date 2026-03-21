@@ -176,7 +176,7 @@ export const SelectContentSection = ({
           </Button>
         </Box>
       )}
-      <Grid columns="medium" gap="medium">
+      <Grid columns="small" gap="medium">
         {filteredItems?.map(
           (item: Video | Document, index: React.Key | null | undefined) => (
             <Box
@@ -207,7 +207,7 @@ export const SelectContentSection = ({
                   gap="small"
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: canEmbed ? '1fr 1fr' : '1fr',
+                    gridTemplateColumns: '1fr',
                     width: '100%',
                     marginTop: 'auto',
                   }}
@@ -218,7 +218,7 @@ export const SelectContentSection = ({
                     icon={<span className="material-icons">link</span>}
                     style={{
                       whiteSpace: 'nowrap',
-                      fontSize: '0.85rem',
+                      fontSize: '0.8rem',
                       justifyContent: 'center',
                     }}
                     onClick={() =>
@@ -242,12 +242,12 @@ export const SelectContentSection = ({
                       icon={<span className="material-icons">code</span>}
                       style={{
                         whiteSpace: 'nowrap',
-                        fontSize: '0.85rem',
+                        fontSize: '0.8rem',
                         justifyContent: 'center',
                       }}
                       onClick={() =>
                         buildContentItems(
-                          buildPublicVideoIframe(item.id, item.is_live),
+                          buildPublicVideoIframe(item.id),
                           item.title,
                           item.description,
                           lti_select_form_data,

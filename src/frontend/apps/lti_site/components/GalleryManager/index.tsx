@@ -172,9 +172,9 @@ const GalleryVideoCard = ({
           </Box>
           <Box
             style={{
-              background: 'rgba(255,255,255,0.96)',
+              background: 'rgba(255,255,255,0.98)',
               borderRadius: '999px',
-              padding: '4px 8px',
+              padding: '4px 10px',
               boxShadow: '0 10px 24px rgba(15, 35, 64, 0.16)',
             }}
           >
