@@ -105,6 +105,7 @@ const VideoWizard = () => {
                       messages.createVideoButtonLabel,
                     )}
                     fullWidth
+                    icon={<span className="material-icons">video_call</span>}
                     title={intl.formatMessage(messages.createVideoButtonLabel)}
                     to={builderVideoWizzardRoute(
                       VideoWizzardSubPage.createVideo,

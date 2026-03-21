@@ -179,6 +179,7 @@ export const SelectContentSection = ({
             icon={<span className="material-icons">add_circle</span>}
             onClick={addAndSelectContent}
             type="button"
+            color="primary"
             style={{ alignSelf: 'start' }}
           >
             {addMessage}
@@ -207,6 +208,7 @@ export const SelectContentSection = ({
                 <Box direction="row" gap="xsmall" wrap="wrap">
                   <Button
                     type="button"
+                    icon={<span className="material-icons">link</span>}
                     onClick={() =>
                       buildContentItems(
                         buildPublicVideoUrl(item.id),
@@ -223,6 +225,8 @@ export const SelectContentSection = ({
                   {canEmbed && (
                     <Button
                       type="button"
+                      color="secondary"
+                      icon={<span className="material-icons">code</span>}
                       onClick={() =>
                         buildContentItems(
                           buildPublicVideoIframe(item.id, item.is_live),

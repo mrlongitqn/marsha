@@ -227,6 +227,7 @@ export const CreateVOD = ({
             disabled={formState !== FormState.WAITING_FOR_SUBMIT}
             color="secondary"
             fullWidth
+            icon={<span className="material-icons">arrow_back</span>}
             style={{ flex: 1 }}
             title={intl.formatMessage(messages.goBackButtonLabel)}
             onClick={onPreviousButtonClick}
@@ -238,6 +239,7 @@ export const CreateVOD = ({
             aria-label={intl.formatMessage(messages.createVideoButtonLabel)}
             disabled={!canValid || formState !== FormState.WAITING_FOR_SUBMIT}
             fullWidth
+            icon={<span className="material-icons">cloud_upload</span>}
             onClick={() => {
               setFormState(FormState.UPDATING_METADATA);
 

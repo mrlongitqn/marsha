@@ -1,14 +1,28 @@
 import { shouldPolyfill } from '@formatjs/intl-pluralrules/should-polyfill';
 import { getIntl } from 'lib-common';
 
+const supportedLocalesMap: Record<string, string> = {
+  en: 'en_US',
+  en_us: 'en_US',
+  es: 'es_ES',
+  es_es: 'es_ES',
+  fr: 'fr_FR',
+  fr_fr: 'fr_FR',
+  fr_ca: 'fr_CA',
+  vi: 'vi_VN',
+  vi_vn: 'vi_VN',
+};
+
 const getLocales = (baseLocale: string) => {
   let localeCode: string;
   let locale: string;
   try {
-    locale = localeCode = baseLocale;
-    if (localeCode.match(/^.*_.*$/)) {
-      localeCode = localeCode.split('_')[0];
-    }
+    const normalizedLocale = baseLocale.replace('-', '_');
+    const mappedLocale =
+      supportedLocalesMap[normalizedLocale.toLowerCase()] || normalizedLocale;
+
+    locale = mappedLocale;
+    localeCode = mappedLocale.split('_')[0];
   } catch (e) {
     localeCode = 'en';
     locale = 'en_US';

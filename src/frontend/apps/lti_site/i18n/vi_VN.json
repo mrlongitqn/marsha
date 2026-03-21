@@ -1,0 +1,178 @@
+{
+  "components.GalleryManager.title": {
+    "description": "Title for the LTI gallery manager page.",
+    "message": "Thư viện video khóa học"
+  },
+  "components.GalleryManager.subtitle": {
+    "description": "Subtitle for the LTI gallery manager page.",
+    "message": "Quản lý video của khóa học trong một không gian rõ ràng hơn: tạo mới, tải lên, cập nhật và xóa với trạng thái trực quan."
+  },
+  "components.GalleryManager.empty": {
+    "description": "Message shown when there is no video in the current playlist.",
+    "message": "Chưa có video nào trong khóa học này."
+  },
+  "components.GalleryManager.addButton": {
+    "description": "Button label to create a new video from the gallery list.",
+    "message": "Thêm video"
+  },
+  "components.GalleryManager.editButton": {
+    "description": "Button label to edit a video.",
+    "message": "Chỉnh sửa"
+  },
+  "components.GalleryManager.deleteButton": {
+    "description": "Button label to delete a video.",
+    "message": "Xóa"
+  },
+  "components.GalleryManager.createSuccess": {
+    "description": "Toast shown after creating a video.",
+    "message": "Đã tạo video."
+  },
+  "components.GalleryManager.deleteSuccess": {
+    "description": "Toast shown after deleting a video.",
+    "message": "Đã xóa video."
+  },
+  "components.GalleryManager.deleteConfirmation": {
+    "description": "Confirmation prompt before deleting a video from the gallery.",
+    "message": "Bạn có chắc muốn xóa video này không?"
+  },
+  "components.GalleryManager.newVideoTitle": {
+    "description": "Default title used when a gallery user creates a new video.",
+    "message": "Video mới"
+  },
+  "components.GalleryManager.backToGallery": {
+    "description": "Button label to return to the gallery list.",
+    "message": "Quay lại thư viện"
+  },
+  "components.GalleryManager.genericError": {
+    "description": "Fallback error message for gallery actions.",
+    "message": "Đã có lỗi xảy ra. Vui lòng thử lại."
+  },
+  "components.GalleryManager.publicBadge": {
+    "description": "Badge displayed for public videos in the gallery.",
+    "message": "Công khai"
+  },
+  "components.GalleryManager.privateBadge": {
+    "description": "Badge displayed for private videos in the gallery.",
+    "message": "Riêng tư"
+  },
+  "components.GalleryManager.statusLabel": {
+    "description": "Label displayed above the upload status badge.",
+    "message": "Trạng thái"
+  },
+  "components.GalleryManager.visibilityLabel": {
+    "description": "Label displayed above the visibility badge.",
+    "message": "Hiển thị"
+  },
+  "components.GalleryManager.videosCount": {
+    "description": "Helper text showing the number of videos in the gallery.",
+    "message": "{count, plural, =0 {Chưa có video} one {# video trong khóa học} other {# video trong khóa học}}"
+  },
+  "components.SelectContent.SelectContentSection.select": {
+    "description": "Title used for a video or a document select.",
+    "message": "Chọn {content_title}"
+  },
+  "components.SelectContent.SelectContentSection.insertLink": {
+    "description": "Button label used to insert a video as an LTI link.",
+    "message": "Chèn liên kết"
+  },
+  "components.SelectContent.SelectContentSection.insertEmbed": {
+    "description": "Button label used to insert a video as an iframe embed.",
+    "message": "Chèn nhúng"
+  },
+  "components.SelectContent.commonMessages.addVideo": {
+    "description": "Text displayed on a button to add a new video.",
+    "message": "Thêm video"
+  },
+  "components.SelectContent.commonMessages.titleVideo": {
+    "description": "section title display for managing video resources",
+    "message": "Video"
+  },
+  "components.SelectContent.commonMessages.addDocument": {
+    "description": "Text displayed on a button to add a new document.",
+    "message": "Thêm tài liệu"
+  },
+  "components.SelectContent.commonMessages.titleDocument": {
+    "description": "section title display for managing document resources",
+    "message": "Tài liệu"
+  },
+  "components.SelectContent.commonMessages.addWebinar": {
+    "description": "Text displayed on a button to add a new webinar.",
+    "message": "Thêm webinar"
+  },
+  "components.SelectContent.commonMessages.titleWebinar": {
+    "description": "section title display for managing webinar resources",
+    "message": "Webinar"
+  },
+  "component.CreateVOD.videoCreationTitle": {
+    "description": "Title of the view.",
+    "message": "Tạo video"
+  },
+  "component.CreateVOD.descriptionText": {
+    "description": "A paragraph presenting the actions below.",
+    "message": "Dùng trình hướng dẫn này để tạo video mới và chia sẻ cho người học."
+  },
+  "components.CreateVOD.placeholderTitleInput": {
+    "description": "A placeholder text indicating the purpose of the input and what it is supposed to received.",
+    "message": "Nhập tiêu đề video"
+  },
+  "components.CreateVOD.goBackButtonLabel": {
+    "description": "Button's label offering the user to go back to the last screen.",
+    "message": "Quay lại"
+  },
+  "components.CreateVOD.createVideoButtonLabel": {
+    "description": "Button's label offering the user to go validate is form and create a new video.",
+    "message": "Tạo video"
+  },
+  "component.CreateVOD.updateVideoInfosFail": {
+    "description": "Message displayed when video infos update has failed.",
+    "message": "Cập nhật thông tin video thất bại!"
+  },
+  "components.UploadableObjectStatusBadge.deleted": {
+    "description": "Badge text for an uploadable object that was deleted.",
+    "message": "Đã xóa"
+  },
+  "components.UploadableObjectStatusBadge.error": {
+    "description": "Badge text for an uploadable object that encountered an error.",
+    "message": "Lỗi"
+  },
+  "components.UploadableObjectStatusBadge.pending": {
+    "description": "Badge text for an uploadable object that has no file at all and is still pending.",
+    "message": "Chờ xử lý"
+  },
+  "components.UploadableObjectStatusBadge.processing": {
+    "description": "Badge text for an uploadable object that is currently processing",
+    "message": "Đang xử lý"
+  },
+  "components.UploadableObjectStatusBadge.ready": {
+    "description": "Badge text for an uploadable object that is ready.",
+    "message": "Sẵn sàng"
+  },
+  "components.UploadableObjectStatusBadge.uploading": {
+    "description": "Badge text for an uploadable object that is currently uploading.",
+    "message": "Đang tải lên"
+  },
+  "components.LTINav.linkDashboard": {
+    "description": "Title for the dashboard, where the user can see the status of the video/audio/timed text upload & processing, and will be able to manage them.",
+    "message": "Bảng điều khiển"
+  },
+  "components.LTINav.linkPreview": {
+    "description": "Title for the Instructor View. Describes the area appearing right above, which is a preview of what the student will see there.",
+    "message": "Xem trước"
+  },
+  "components.LTINav.linkPlaylist": {
+    "description": "Title for the playlist view, where the user can see the current playlist id, and will be able to manage portability.",
+    "message": "Danh sách phát"
+  },
+  "component.VideoWizard.chooseActionTitle": {
+    "description": "Title asking what actions the user wants to do.",
+    "message": "Bạn muốn làm gì?"
+  },
+  "component.VideoWizard.descriptionText": {
+    "description": "A generic paragraph presenting the available actions.",
+    "message": "Chọn cách bạn muốn chia sẻ nội dung bằng các tùy chọn bên dưới."
+  },
+  "component.VideoWizard.createVideoButtonLabel": {
+    "description": "Label of the button used for creating a new video.",
+    "message": "Tạo video"
+  }
+}

@@ -135,11 +135,6 @@ describe('buildContentItems', () => {
             '@type': 'ContentItem',
             mediaType: 'text/html',
             text: '<iframe src="https://example.com/videos/1"></iframe>',
-            placementAdvice: {
-              presentationDocumentTarget: 'iframe',
-              displayWidth: 960,
-              displayHeight: 540,
-            },
             title: 'Custom select content title',
           },
         ],

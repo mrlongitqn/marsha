@@ -17,11 +17,6 @@ interface IframeContentItemsStructure {
     '@type': 'ContentItem';
     mediaType?: 'text/html';
     text: string;
-    placementAdvice?: {
-      presentationDocumentTarget: 'iframe';
-      displayWidth: number;
-      displayHeight: number;
-    };
     title?: Nullable<string>;
   }[];
 }
@@ -104,11 +99,6 @@ export const buildContentItems = (
           '@type': 'ContentItem',
           mediaType: 'text/html',
           text: url,
-          placementAdvice: {
-            presentationDocumentTarget: 'iframe',
-            displayWidth: 960,
-            displayHeight: 540,
-          },
         },
       ],
     };
