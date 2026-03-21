@@ -1042,9 +1042,6 @@ class LTIGalleryView(BaseResourceView):
         """Adds LTI request verification and permissions check to the context initialization."""
         self.lti = LTI(self.request)  # pylint:disable=attribute-defined-outside-init
 
-        if not self.lti.is_instructor and not self.lti.is_admin:
-            raise PermissionDenied
-
         try:
             self.lti.verify()
         except LTIException as error:
@@ -1060,9 +1057,17 @@ class LTIGalleryView(BaseResourceView):
             defaults={"title": self.lti.context_title},
         )
 
+        can_update = self.lti.is_instructor or self.lti.is_admin
+        videos_queryset = playlist.videos.order_by("-created_on")
+        if not can_update:
+            videos_queryset = videos_queryset.filter(
+                Video.get_ready_clause(),
+                is_public=True,
+            )
+
         refresh_token = PlaylistRefreshToken.for_lti(
             lti=self.lti,
-            permissions={"can_access_dashboard": False, "can_update": True},
+            permissions={"can_access_dashboard": False, "can_update": can_update},
             session_id=str(uuid.uuid4()),
             port_to_playlist_id=str(playlist.id),
         )
@@ -1073,11 +1078,11 @@ class LTIGalleryView(BaseResourceView):
                 "modelName": "videos",
                 "playlist": PlaylistLiteSerializer(playlist).data,
                 "videos": VideoSerializer(
-                    playlist.videos.order_by("-created_on"),
+                    videos_queryset,
                     many=True,
                     context={
                         "request": self.request,
-                        "is_admin": True,
+                        "is_admin": can_update,
                     },
                 ).data,
                 "jwt": str(refresh_token.access_token),

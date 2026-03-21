@@ -47,6 +47,15 @@ const messages = defineMessages({
   },
 });
 
+const statusIcons = {
+  [uploadState.DELETED]: 'delete',
+  [uploadState.ERROR]: 'error',
+  [uploadState.PENDING]: 'schedule',
+  [uploadState.PROCESSING]: 'sync',
+  [uploadState.READY]: 'check_circle',
+  uploading: 'cloud_upload',
+};
+
 interface BadgeProps {
   background: string;
 }
@@ -67,80 +76,113 @@ const Badge = styled.div`
 
 interface UploadableObjectStatusBadgeProps {
   object: UploadableObject;
+  neutral?: boolean;
 }
 
 export const UploadableObjectStatusBadge = ({
   object,
+  neutral = false,
 }: UploadableObjectStatusBadgeProps) => {
   const { uploadManagerState } = useUploadManager();
 
+  const renderBadge = (
+    message:
+      | typeof messages[uploadState.DELETED]
+      | typeof messages[uploadState.ERROR]
+      | typeof messages[uploadState.PENDING]
+      | typeof messages[uploadState.PROCESSING]
+      | typeof messages[uploadState.READY]
+      | typeof messages.uploading,
+    background: string,
+    icon: string,
+  ) => (
+    <Badge
+      role="status"
+      background={neutral ? '#ffffff' : background}
+      style={{
+        color: neutral ? '#5f6b7a' : 'white',
+        boxShadow: neutral ? '0 10px 24px rgba(15, 35, 64, 0.16)' : 'none',
+      }}
+    >
+      <span
+        className="material-icons"
+        style={{ fontSize: '14px', marginRight: '6px', verticalAlign: 'bottom' }}
+      >
+        {icon}
+      </span>
+      <FormattedMessage {...message} />
+    </Badge>
+  );
+
   switch (object.upload_state) {
     case uploadState.READY:
-      return (
-        <Badge role="status" background={colorsTokens['success-600']}>
-          <FormattedMessage {...messages[uploadState.READY]} />
-        </Badge>
+      return renderBadge(
+        messages[uploadState.READY],
+        colorsTokens['success-600'],
+        statusIcons[uploadState.READY],
       );
 
     case uploadState.DELETED:
     case uploadState.PROCESSING:
     case uploadState.INITIALIZED:
-      return (
-        <Badge role="status" background={colorsTokens['info-300']}>
-          <FormattedMessage
-            {...messages[
-              object.upload_state === uploadState.INITIALIZED
-                ? uploadState.PENDING
-                : object.upload_state
-            ]}
-          />
-        </Badge>
+      return renderBadge(
+        messages[
+          object.upload_state === uploadState.INITIALIZED
+            ? uploadState.PENDING
+            : object.upload_state
+        ],
+        colorsTokens['info-300'],
+        statusIcons[
+          object.upload_state === uploadState.INITIALIZED
+            ? uploadState.PENDING
+            : object.upload_state
+        ],
       );
 
     case uploadState.ERROR:
-      return (
-        <Badge role="status" background={colorsTokens['danger-400']}>
-          <FormattedMessage {...messages[uploadState.ERROR]} />
-        </Badge>
+      return renderBadge(
+        messages[uploadState.ERROR],
+        colorsTokens['danger-400'],
+        statusIcons[uploadState.ERROR],
       );
 
     case uploadState.PENDING:
       switch (uploadManagerState[object.id]?.status) {
         case UploadManagerStatus.INIT:
         case UploadManagerStatus.UPLOADING:
-          return (
-            <Badge role="status" background={colorsTokens['info-300']}>
-              <FormattedMessage {...messages.uploading} />
-            </Badge>
+          return renderBadge(
+            messages.uploading,
+            colorsTokens['info-300'],
+            statusIcons.uploading,
           );
 
         case UploadManagerStatus.ERR_POLICY:
         case UploadManagerStatus.ERR_UPLOAD:
-          return (
-            <Badge role="status" background={colorsTokens['danger-400']}>
-              <FormattedMessage {...messages[uploadState.ERROR]} />
-            </Badge>
+          return renderBadge(
+            messages[uploadState.ERROR],
+            colorsTokens['danger-400'],
+            statusIcons[uploadState.ERROR],
           );
 
         case UploadManagerStatus.ERR_SIZE:
-          return (
-            <Badge role="status" background={colorsTokens['danger-400']}>
-              <FormattedMessage {...messages[uploadState.ERROR]} />
-            </Badge>
+          return renderBadge(
+            messages[uploadState.ERROR],
+            colorsTokens['danger-400'],
+            statusIcons[uploadState.ERROR],
           );
 
         case UploadManagerStatus.SUCCESS:
-          return (
-            <Badge role="status" background={colorsTokens['info-300']}>
-              <FormattedMessage {...messages[uploadState.PROCESSING]} />
-            </Badge>
+          return renderBadge(
+            messages[uploadState.PROCESSING],
+            colorsTokens['info-300'],
+            statusIcons[uploadState.PROCESSING],
           );
 
         default:
-          return (
-            <Badge role="status" background={colorsTokens['greyscale-700']}>
-              <FormattedMessage {...messages[uploadState.PENDING]} />
-            </Badge>
+          return renderBadge(
+            messages[uploadState.PENDING],
+            colorsTokens['greyscale-700'],
+            statusIcons[uploadState.PENDING],
           );
       }
 

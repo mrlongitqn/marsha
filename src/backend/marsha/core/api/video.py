@@ -250,12 +250,17 @@ class VideoViewSet(
     def _get_list_queryset(self):
         """Build the queryset used on the list action."""
         if self.request.resource is not None:
-            return (
+            queryset = (
                 super()
                 .get_queryset()
                 .filter(playlist__id=self.request.resource.id)
                 .distinct()
             )
+
+            if not self.get_serializer_context().get("is_admin", False):
+                queryset = queryset.filter(Video.get_ready_clause(), is_public=True)
+
+            return queryset
 
         user_id = self.request.user.id
 

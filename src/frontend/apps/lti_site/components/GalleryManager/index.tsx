@@ -115,10 +115,12 @@ const messages = defineMessages({
 
 const GalleryVideoCard = ({
   video,
+  canManage,
   onEdit,
   onDelete,
 }: {
   video: Video;
+  canManage: boolean;
   onEdit: () => void;
   onDelete: () => void;
 }) => {
@@ -178,7 +180,7 @@ const GalleryVideoCard = ({
               boxShadow: '0 10px 24px rgba(15, 35, 64, 0.16)',
             }}
           >
-            <UploadableObjectStatusBadge object={video} />
+            <UploadableObjectStatusBadge object={video} neutral />
           </Box>
         </Box>
 
@@ -208,26 +210,28 @@ const GalleryVideoCard = ({
         </Box>
       </Box>
 
-      <Box
-        gap="small"
-        style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: '100%' }}
-      >
-        <Button
-          fullWidth
-          icon={<span className="material-icons">edit</span>}
-          onClick={onEdit}
+      {canManage && (
+        <Box
+          gap="small"
+          style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: '100%' }}
         >
-          {intl.formatMessage(messages.editButton)}
-        </Button>
-        <Button
-          color="secondary"
-          fullWidth
-          icon={<span className="material-icons">delete</span>}
-          onClick={onDelete}
-        >
-          {intl.formatMessage(messages.deleteButton)}
-        </Button>
-      </Box>
+          <Button
+            fullWidth
+            icon={<span className="material-icons">edit</span>}
+            onClick={onEdit}
+          >
+            {intl.formatMessage(messages.editButton)}
+          </Button>
+          <Button
+            color="secondary"
+            fullWidth
+            icon={<span className="material-icons">delete</span>}
+            onClick={onDelete}
+          >
+            {intl.formatMessage(messages.deleteButton)}
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 };
@@ -236,7 +240,9 @@ export const GalleryManager = () => {
   const intl = useIntl();
   const appData = useAppConfig();
   const navigate = useNavigate();
+  const [resourceContext] = useCurrentResourceContext();
   const playlistId = appData.playlist?.id || '';
+  const canUpdate = resourceContext.permissions.can_update;
 
   const apiResponse = useVideos(
     {
@@ -342,22 +348,24 @@ export const GalleryManager = () => {
         </Box>
       </Box>
 
-      <Box direction="row" justify="end">
-        <Button
-          icon={<span className="material-icons">add_circle</span>}
-          onClick={() =>
-            createVideoMutation.mutate({
-              playlist: playlistId,
-              title: intl.formatMessage(messages.newVideoTitle),
-              upload_state: uploadState.INITIALIZED,
-              is_public: true,
-            })
-          }
-          disabled={createVideoMutation.isLoading}
-        >
-          {intl.formatMessage(messages.addButton)}
-        </Button>
-      </Box>
+      {canUpdate && (
+        <Box direction="row" justify="end">
+          <Button
+            icon={<span className="material-icons">add_circle</span>}
+            onClick={() =>
+              createVideoMutation.mutate({
+                playlist: playlistId,
+                title: intl.formatMessage(messages.newVideoTitle),
+                upload_state: uploadState.INITIALIZED,
+                is_public: true,
+              })
+            }
+            disabled={createVideoMutation.isLoading}
+          >
+            {intl.formatMessage(messages.addButton)}
+          </Button>
+        </Box>
+      )}
 
       {apiResponse.isLoading && <BoxLoader />}
       {apiResponse.isError && (
@@ -373,9 +381,15 @@ export const GalleryManager = () => {
           <GalleryVideoCard
             key={video.id}
             video={video}
-            onEdit={() => navigate(builderGalleryVideoRoute(video.id))}
+            canManage={canUpdate}
+            onEdit={() =>
+              canUpdate ? navigate(builderGalleryVideoRoute(video.id)) : undefined
+            }
             onDelete={() => {
-              if (window.confirm(intl.formatMessage(messages.deleteConfirmation))) {
+              if (
+                canUpdate &&
+                window.confirm(intl.formatMessage(messages.deleteConfirmation))
+              ) {
                 deleteVideoMutation.mutate(video.id);
               }
             }}
