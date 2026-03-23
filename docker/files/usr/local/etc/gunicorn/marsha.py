@@ -8,7 +8,7 @@ python_path = "/app"
 # Run
 graceful_timeout = 90
 timeout = 90
-workers = 3
+workers = 1
 worker_class = "marsha.workers.MarshaUvicornWorker"
 worker_tmp_dir = "/dev/shm"
 threads = 6
